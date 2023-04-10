@@ -1,0 +1,66 @@
+.container {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    padding: 20px;
+    width: 300px;
+}
+
+.container div {
+    padding: 5px;
+}
+
+.form label {
+    font-size: 20px;
+    line-height: 20px;
+}
+
+.login-input-group,
+.password-input-group {
+    display: flex;
+    align-items: center;
+}
+
+.login-input-group > label,
+.password-input-group > label {
+    flex-grow: 1;
+}
+
+.form label {
+    margin-right: 10px;
+}
+
+.form input[type="text"],
+.form input[type="password"] {
+    border: 2px solid grey;
+    border-radius: 2px;
+    line-height: 20px;
+    font-size: 20px;
+}
+
+.form input[type="button"] {
+    position: relative;
+    background-color: #4caf50;
+    border: none;
+    font-size: 20px;
+    color: #ffffff;
+    padding: 5px;
+    width: 200px;
+    text-align: center;
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.form input[type="button"]:hover {
+    background-color: #5ec163;
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

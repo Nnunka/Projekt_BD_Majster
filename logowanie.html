@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta
+                    name="viewport"
+                    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+            />
+            <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+            <title>Logowanie</title>
+            <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+            <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+            <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+            <link rel="stylesheet" href="log.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const rootElement = document.getElementById("root");
+    
+        const Button = (props) => {
+            const {text, onClick} = props;
+            return <div className="button-container">
+                <input type="button" value={text} onClick={onClick}/>
+            </div>
+        }
+    
+        class TextInput extends React.Component {
+            render() {
+                const {label, value, onChange} = this.props;
+    
+                return <div className="login-input-group">
+                    <label htmlFor="login">{label}</label>
+                    <input id="login" type="text" aria-label="Login" value={value} onChange={onChange}/>
+                </div>
+            }
+        }
+    
+        const PasswordInput = (props) => {
+            const {label, value, onChange} = props;
+            return  <div className="password-input-group">
+                <label htmlFor="password">{label}</label>
+                <input id="password" type="password" aria-label="Password" value={value} onChange={onChange}/>
+            </div>
+        }
+    
+        const App = (props) => {
+            const [formData, setFormData] = React.useState({login: "", password: ""})
+    
+            const onClick = () => {
+                console.log('Przycisk Kliknięty!')
+                console.log('Login: ', formData.login)
+                console.log('Password: ', formData.password)
+            }
+    
+            const onChangeLogin = (e) => {
+                setFormData({...formData, login: e.target.value})
+            }
+    
+            const onChangePassword = (e) => {
+                setFormData({...formData, password: e.target.value})
+            }
+    
+            return <div className="container" >
+                <div className="header" >
+                <h1> Zaloguj się </h1>
+            <hr/>
+            </div>
+            <form className="form">
+                <TextInput label={"Login:"} value={formData.login} onChange={onChangeLogin}/>
+                <PasswordInput label={"Hasło:"} value={formData.password} onChange={onChangePassword} />
+                <Button text="Zaloguj!" onClick={onClick} />
+            </form>
+        </div>
+    
+        }
+    
+        ReactDOM.render(
+            <App/>,
+            rootElement
+        );
+    </script>  
+</body>
+</html>
