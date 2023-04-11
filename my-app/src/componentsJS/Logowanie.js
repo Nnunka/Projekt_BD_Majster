@@ -1,5 +1,5 @@
-import './Logowanie.css';
-
+import './../componentsCSS/Logowanie.css';
+import history from './../history';
 function Logowanie() {
     return(
         <div className="login-form">
@@ -18,7 +18,7 @@ function Logowanie() {
             <input type="password" name="" required></input>
           </div>
           <div className="button-container">
-            <input type="button" value="Zaloguj"></input>
+            <input type="button" onClick={()=> history.push('./Menu')} value="Zaloguj"></input>
           </div>
         </form>
       </div>
