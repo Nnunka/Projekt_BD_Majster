@@ -7,17 +7,14 @@ const path = require("path");
 require("dotenv").config();
 
 const app = express();
-
 const PORT = process.env.PORT || 5000;
 
 const initializePassport = require("./passportConfig");
 initializePassport(passport);
 
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-
 app.use(express.json());
 
 app.use(session({
@@ -30,44 +27,37 @@ app.use(session({
 }));
 
 app.use(passport.initialize());
-
-
 app.use(passport.session());
-
-
 app.use(flash()); //przechowywanie i wyświetlanie informacji dla użytkowników w odpowiedzi na ich interakcje z serwerem
 
 
-
 app.get("/", (req, res)=>{
-    res.render("users/logowanie");
+  res.render("users/Login");
 });
 
-
-app.get("/logowanie", (req, res) =>{
-    res.render("users/logowanie");
+app.get("/Login", (req, res) =>{
+  res.render("users/Login");
 });
 
+app.get("/users/UsersList", (req, res) => {
+  res.render("users/UsersList");
+}); //przejście na stronę Pracownicy
 
-
-// obsługa żądania get, dodania nowego użytkownika - AddUser
 app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
-    res.render("users/AddUser");
-});
-
+  res.render("users/AddUser");
+}); // obsługa żądania get, dodania nowego użytkownika - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-    res.render("users/Dashboard", {user: req.user.user_login }); // po zalogowaniu wyświetla login zalogowanego użytkownika - Dashboard
-});
+    res.render("users/Dashboard", {user: req.user.user_login }); 
+}); // po zalogowaniu wyświetla login zalogowanego użytkownika - Dashboard
 
 // obsługa żądania post, wylogowanie
 app.post("/Logout", (req, res) =>{
     req.logout(() => {
         req.flash("success_msg", "Użytkownik wylogowany"); //komunikat flash - Użytkownik wylogowany w panelu logowania
-        res.redirect("/logowanie"); //przekierowanie do strony logowania
+        res.redirect("/Login"); //przekierowanie do strony logowania
       });
 });
-
 
 //dodanie nowego użytkownika do bazy poprzez formularz
 app.post('/users/AddUser', async (req, res) => {
@@ -116,21 +106,19 @@ app.post('/users/AddUser', async (req, res) => {
                 console.log(results.rows);
                 console.log("nowy uzytkownik w bazie") 
                 req.flash("success_msg", "Dodano nowego użytkownika");
-                res.redirect("/users/Dashboard");
+                res.redirect("/users/UsersList");
               })
           }}
       )}
   });
 
-app.post("/logowanie", 
+
+app.post("/Login", 
 passport.authenticate("local", {
     successRedirect: "/users/Dashboard",
-    failureRedirect: "/logowanie",
+    failureRedirect: "/Login",
     failureFlash:true
 }));
-
-
-
 
 // Jest to funkcja pośrednicząca, która sprawdza, czy użytkownik jest 
 // uwierzytelniony. Jeśli tak, przekierowuje go na stronę "/users Dashboard",
@@ -140,7 +128,7 @@ function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
       return next();
     } 
-    res.redirect("/users/logowanie");
+    res.redirect("/users/Login");
   }
 
 
@@ -153,7 +141,7 @@ function checkNotAuthenticated (req,res,next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect("/users/logowanie");
+    res.redirect("/users/Login");
 }
 
 app.listen(PORT, () => {
