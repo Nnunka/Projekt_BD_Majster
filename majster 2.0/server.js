@@ -7,15 +7,15 @@ const path = require("path");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000; //port na którym działa aplikacja - jeśli nie znajdzie w pliku .env portu to domyślnie działa na porcie 5000
 
-const initializePassport = require("./passportConfig");
+const initializePassport = require("./passportConfig"); //implementacja f. passport - do logowania 
 initializePassport(passport);
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: true }));
-app.set("view engine", "ejs");
-app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'))); //ustawienie tego jako static pozwala np. na używanie css itp.
+app.use(express.urlencoded({ extended: true })); //pozwala na przetwarzanie danych z formularzy - ta metoda automatycznie przetwarza dane z formularzy i tworzy obiekt, który jest dostępny w kodzie aplikacji
+app.set("view engine", "ejs"); //ustawienie silnika widoku jako ejs
+app.use(express.json()); //przetwarzanie danych w formacie JSON
 
 app.use(session({
     secret: 'secret',
@@ -32,11 +32,11 @@ app.use(flash()); //przechowywanie i wyświetlanie informacji dla użytkowników
 
 
 app.get("/", (req, res)=>{
-  res.render("users/Login");
+  res.render("Login");
 });
 
 app.get("/Login", (req, res) =>{
-  res.render("users/Login");
+  res.render("Login");
 });
 
 app.get("/users/UsersList", (req, res) => {
@@ -59,59 +59,6 @@ app.post("/Logout", (req, res) =>{
       });
 });
 
-//dodanie nowego użytkownika do bazy poprzez formularz
-app.post('/users/AddUser', async (req, res) => {
-
-    let { name, surname, email, login, password, role } = req.body;
-    console.log({
-      name,
-      surname,
-      email,
-      login,
-      password,
-      role
-    })
-    let errors = [];
-  
-    if (!name || !surname || !email || !login || !password || !role) {
-      errors.push({ message: "Wypełnij wszystkie pola!" });
-    }
-    if (password.length < 4) {
-      errors.push({ message: "Hasło musi mieć przynajmniej 4 znaki!" });
-    }
-    if (errors.length > 0) {
-      res.render("users/AddUser", { errors });
-    } else {  
-      //spr czy dany login jest w bazie
-      pool.query(
-        `SELECT * FROM users 
-        WHERE user_login = $1`, [login], (err, result) => {
-          if (err) {
-            throw err
-          }
-          console.log(result.rows);
-          if (result.rows.length > 0) {
-            errors.push({ message: "Taki login jest już w bazie!" })
-            res.render("users/AddUser", { errors });
-          } else {
-            // dodanie użytkownika do bazy
-            pool.query(
-              `INSERT INTO users (user_name, user_surname, user_email, user_login, user_password, user_role)
-              VALUES ($1, $2, $3, $4, $5, $6)
-              RETURNING user_id, user_password`, [name, surname, email, login, password, role],
-              (err, results) => {
-                if (err) {
-                  throw err;
-                }
-                console.log(results.rows);
-                console.log("nowy uzytkownik w bazie") 
-                req.flash("success_msg", "Dodano nowego użytkownika");
-                res.redirect("/users/UsersList");
-              })
-          }}
-      )}
-  });
-
 
 app.post("/Login", 
 passport.authenticate("local", {
@@ -128,7 +75,7 @@ function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
       return next();
     } 
-    res.redirect("/users/Login");
+    res.redirect("/Login");
   }
 
 
@@ -141,7 +88,7 @@ function checkNotAuthenticated (req,res,next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect("/users/Login");
+    res.redirect("/Login");
 }
 
 app.listen(PORT, () => {
