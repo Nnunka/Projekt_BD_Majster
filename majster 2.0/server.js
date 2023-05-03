@@ -39,9 +39,25 @@ app.get("/Login", (req, res) =>{
   res.render("Login");
 });
 
-app.get("/users/UsersList", (req, res) => {
-  res.render("users/UsersList");
-}); //przejście na stronę Pracownicy
+
+
+app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
+  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+    if (error) throw error;
+    const users = results.rows.map(row => ({
+      name: row.user_name,
+      surname: row.user_surname,
+      email: row.user_email,
+      password:row.user_password,
+      role:row.user_role
+    }));
+    let index = 0;
+    res.render("users/UsersList", { users, index });
+  });
+});  //przejście na stronę Pracownicy
+
+
+
 
 app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
   res.render("users/AddUser");

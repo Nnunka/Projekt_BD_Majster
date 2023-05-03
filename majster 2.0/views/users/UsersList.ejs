@@ -31,9 +31,28 @@
       
     </div>
   </nav>
-
+  
   <button class="btn btn-warning"><a href="/users/AddUser" >Dodaj nowego użytkownika</a></button>
- 
+  <table>
+    <thead>
+      <tr>
+        <th>Imię</th>
+        <th>Nazwisko</th>
+        <th>Email</th>
+        <th>Rola</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(function(user) { %>
+        <tr>
+          <td><%= user.name %></td>
+          <td><%= user.surname %></td>
+          <td><%= user.email %></td>
+          <td><%= user.role %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
 </body>
 </html>
 
