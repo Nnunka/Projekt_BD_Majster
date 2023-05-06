@@ -6,13 +6,13 @@
     <%- include('../components/Navbar')%>
   </header>
   
-  <table>
+  <table class="table">
     <thead>
       <tr>
-        <th>Imię</th>
-        <th>Nazwisko</th>
-        <th>Email</th>
-        <th>Rola</th>
+        <th scope="col">Imię</th>
+        <th scope="col">Nazwisko</th>
+        <th scope="col">Email</th>
+        <th scope="col">Rola</th>
       </tr>
     </thead>
     <tbody>
@@ -27,8 +27,9 @@
     </tbody>
   </table>
 
-  <button class="btn btn-warning"><a href="/users/AddUser">Dodaj nowego użytkownika</a></button>
-
+  <div class="col-md-12 text-center">
+    <button class="btn btn-warning "><a href="/users/AddUser">Dodaj nowego użytkownika</a></button>
+  </div>
 </body>
 
 
