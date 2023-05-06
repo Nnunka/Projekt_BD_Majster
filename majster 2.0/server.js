@@ -41,6 +41,7 @@ app.get("/Login", (req, res) =>{
 
 
 
+
 app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
     if (error) throw error;
