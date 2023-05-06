@@ -57,6 +57,66 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
   });
 });  //przejście na stronę Pracownicy
 
+app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
+  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+    if (error) throw error;
+    const users = results.rows.map(row => ({
+      name: row.user_name,
+      surname: row.user_surname,
+      email: row.user_email,
+      password:row.user_password,
+      role:row.user_role
+    }));
+    let index = 0;
+    res.render("users/MachList", { users, index });
+  });
+});  //przejście na stronę Maszyny
+
+app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
+  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+    if (error) throw error;
+    const users = results.rows.map(row => ({
+      name: row.user_name,
+      surname: row.user_surname,
+      email: row.user_email,
+      password:row.user_password,
+      role:row.user_role
+    }));
+    let index = 0;
+    res.render("users/TaskList", { users, index });
+  });
+});  //przejście na stronę Zadania
+
+app.get("/users/SerwisList", checkNotAuthenticated, (req, res) => {
+  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+    if (error) throw error;
+    const users = results.rows.map(row => ({
+      name: row.user_name,
+      surname: row.user_surname,
+      email: row.user_email,
+      password:row.user_password,
+      role:row.user_role
+    }));
+    let index = 0;
+    res.render("users/SerwisList", { users, index });
+  });
+});  //przejście na stronę Serwis
+
+app.get("/users/AlertList", checkNotAuthenticated, (req, res) => {
+  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+    if (error) throw error;
+    const users = results.rows.map(row => ({
+      name: row.user_name,
+      surname: row.user_surname,
+      email: row.user_email,
+      password:row.user_password,
+      role:row.user_role
+    }));
+    let index = 0;
+    res.render("users/AlertList", { users, index });
+  });
+});  //przejście na stronę Zgłoszenia
+
 
 
 
