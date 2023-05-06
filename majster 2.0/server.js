@@ -59,17 +59,15 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
 });  //przejście na stronę Pracownicy
 
 app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+  pool.query('SELECT machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
     if (error) throw error;
-    const users = results.rows.map(row => ({
-      name: row.user_name,
-      surname: row.user_surname,
-      email: row.user_email,
-      password:row.user_password,
-      role:row.user_role
+    const machines = results.rows.map(row => ({
+      name: row.machine_name,
+      type: row.machine_type,
+      status: row.machine_status,
     }));
     let index = 0;
-    res.render("users/MachList", { users, index });
+    res.render("users/MachList", { machines, index });
   });
 });  //przejście na stronę Maszyny
 

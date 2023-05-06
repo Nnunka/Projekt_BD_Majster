@@ -6,6 +6,12 @@
     <%- include('../components/Navbar')%>
   </header>
 
+  <ul>
+    <% if(typeof errors != 'undefined') { %> 
+      <% errors.forEach(error=>{%>
+        <li><%= error.message %></li> 
+   <% })  %> <% } %>
+  </ul>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
     <form action="/users/AddUser" method="POST">
@@ -39,13 +45,6 @@
       </div>
       <button type="submit" class="btn btn-warning">Dodaj użytkownika</button>
     </form>
-
   </div>
-    <ul>
-      <% if(typeof errors != 'undefined') { %> 
-        <% errors.forEach(error=>{%>
-          <li><%= error.message %></li> 
-     <% })  %> <% } %>
-    </ul>
 
 </body>
