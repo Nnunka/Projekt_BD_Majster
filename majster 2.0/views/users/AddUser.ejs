@@ -37,42 +37,14 @@
           <option value="repairer">Serwisant</option>
         </select>
       </div>
-
       <button type="submit" class="btn btn-warning">Dodaj użytkownika</button>
-
     </form>
-
-    <table class="admin-panel__table">
-      <thead>
-        <tr class="table__row">
-          <th>ID</th>
-          <th>Nazwa użytkownika</th>
-          <th>Data email</th>
-          
-        </tr>
-      </thead>
-      <tbody>
-        <% users.forEach(user => { %>
-        <tr class="table__row">
-              <td><%= index = index + 1 %></td>
-              <td><%= user.name %> <%= user.surname %></td>
-              <td><%= user.email %></td>
-              
-            </tr>  
-        </tr>
-        <% }); %>
-      </tbody>
-    </table>
-
-
 
   </div>
     <ul>
       <% if(typeof errors != 'undefined') { %> 
         <% errors.forEach(error=>{%>
-          <li><%= error.message %></li>
-        
-          
+          <li><%= error.message %></li> 
      <% })  %> <% } %>
     </ul>
 

@@ -49,8 +49,9 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
       name: row.user_name,
       surname: row.user_surname,
       email: row.user_email,
-      password:row.user_password,
-      role:row.user_role
+      login: row.user_login,
+      password: row.user_password,
+      role: row.user_role
     }));
     let index = 0;
     res.render("users/UsersList", { users, index });
