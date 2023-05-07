@@ -12,18 +12,19 @@
         <th scope="col">Nazwa</th>
         <th scope="col">Maszyna</th>
         <th scope="col">Opis</th>
-        <th scope="col">Data rospoczęcia</th>
+        <th scope="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
 
       </tr>
     </thead>
     <tbody>
-      <% users.forEach(function(user) { %>
+      <% services.forEach(function(service) { %>
         <tr>
-          <td><%= user.name %></td>
-          <td><%= user.surname %></td>
-          <td><%= user.email %></td>
-          <td><%= user.role %></td>
+          <td><%= service.title %></td>
+          <td><%= service.machine_id %></td>
+          <td><%= service.details %></td>
+          <td><%= service.start_date %></td>
+          <td><%= service.end_date %></td>
         </tr>
       <% }); %>
     </tbody>

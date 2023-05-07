@@ -16,12 +16,12 @@
       </tr>
     </thead>
     <tbody>
-      <% users.forEach(function(user) { %>
+      <% alerts.forEach(function(alert) { %>
         <tr>
-          <td><%= user.name %></td>
-          <td><%= user.surname %></td>
-          <td><%= user.email %></td>
-          <td><%= user.role %></td>
+          <td><%= alert.title %></td>
+          <td><%= alert.who_add_id %></td>
+          <td><%= alert.details %></td>
+          <td><%= alert.add_date %></td>
         </tr>
       <% }); %>
     </tbody>

@@ -57,7 +57,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
     let index = 0;
     res.render("users/UsersList", { users, index });
   });
-});  //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
+}); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
 app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
@@ -71,7 +71,7 @@ app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
     let index = 0;
     res.render("users/MachList", { machines, index });
   });
-});  //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
+}); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
 app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks', function(error, results, fields) {
@@ -87,39 +87,38 @@ app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
     let index = 0;
     res.render("users/TaskList", { tasks, index });
   });
-});  //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
+}); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
-
-///TRZEBA TU ID DODAĆ NA WSZELKI WYPADEK JAKBYŚMY CHCIELI EDYTOWAĆ TO 
 app.get("/users/ServiceList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+  pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services', function(error, results, fields) {
     if (error) throw error;
-    const users = results.rows.map(row => ({
-      name: row.user_name,
-      surname: row.user_surname,
-      email: row.user_email,
-      password:row.user_password,
-      role:row.user_role
+    const services = results.rows.map(row => ({
+      id: row.service_id,
+      title: row.service_title,
+      machine_id: row.service_machine_id,
+      details: row.service_details,
+      start_date: row.service_start_date,
+      end_date: row.service_end_date
     }));
     let index = 0;
-    res.render("users/ServiceList", { users, index });
+    res.render("users/ServiceList", { services, index });
   });
-});  //przejście na stronę Serwis
+}); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/users/AlertList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+  pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts', function(error, results, fields) {
     if (error) throw error;
-    const users = results.rows.map(row => ({
-      name: row.user_name,
-      surname: row.user_surname,
-      email: row.user_email,
-      password:row.user_password,
-      role:row.user_role
+    const alerts = results.rows.map(row => ({
+      id: row.alert_id,
+      title: row.alert_title,
+      who_add_id: row.alert_who_add_id,
+      details: row.alert_details,
+      add_date: row.alert_add_date
     }));
     let index = 0;
-    res.render("users/AlertList", { users, index });
+    res.render("users/AlertList", { alerts, index });
   });
-});  //przejście na stronę Zgłoszenia
+}); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
 
 
