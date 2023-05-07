@@ -43,9 +43,10 @@ app.get("/Login", (req, res) =>{
 
 
 app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
     if (error) throw error;
     const users = results.rows.map(row => ({
+      id: row.user_id,
       name: row.user_name,
       surname: row.user_surname,
       email: row.user_email,
@@ -59,9 +60,10 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
 });  //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
 app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
+  pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
     if (error) throw error;
     const machines = results.rows.map(row => ({
+      id: row.machine_id,
       name: row.machine_name,
       type: row.machine_type,
       status: row.machine_status,
@@ -72,9 +74,10 @@ app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
 });  //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
 app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks', function(error, results, fields) {
+  pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks', function(error, results, fields) {
     if (error) throw error;
     const tasks = results.rows.map(row => ({
+      id: row.task_id,
       title: row.task_title,
       details: row.task_details,
       add_date: row.task_add_date,
@@ -86,6 +89,8 @@ app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
   });
 });  //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
+
+///TRZEBA TU ID DODAĆ NA WSZELKI WYPADEK JAKBYŚMY CHCIELI EDYTOWAĆ TO 
 app.get("/users/ServiceList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
     if (error) throw error;
@@ -245,11 +250,47 @@ app.post('/users/AddTask', async (req, res) => {
     )}
 });
 
-////////////////////////////
-app.get("/users/EditTask", checkNotAuthenticated, (req, res) => {
-  res.render("users/EditTask");
+//////////////////////////// EDYCJA ZADAŃ
+app.get('/users/EditTask/:id', checkAuthenticated, (req, res) => {
+  const taskId = req.params.id;
+
+  pool.query('SELECT * FROM tasks WHERE task_id = $1', [taskId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const task = result.rows[0];
+    res.render('users/EditTask', { taskId: taskId, taskData: task });
+  });
 }); // obsługa żądania get, przejście na stronę - EditTask
 
+
+app.post('/users/EditTask/:id', checkAuthenticated, (req, res) => {
+  const taskId = req.params.id;
+
+  const { title, details, add_date, start_date, end_date } = req.body;
+
+  pool.query(
+    'UPDATE tasks SET task_title = $1, task_details = $2, task_add_date = $3, task_start_date = $4, task_end_date = $5 WHERE task_id = $6',
+    [title, details, add_date, start_date, end_date, taskId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/users/TaskList');
+    }
+  );
+});
 ////////////////////////////
 
 

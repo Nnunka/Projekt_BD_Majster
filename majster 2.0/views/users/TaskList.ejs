@@ -29,7 +29,9 @@
           <td><%= task.add_date %></td>
           <td><%= task.start_date %></td>
           <td><%= task.end_date %></td>
-          <td><a href="/users/EditTask" class="btn btn-warning">Edytuj</a></td>
+          <td>
+            <button class="btn btn-warning"><a href="/users/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+          </td>
         </tr>
       <% }); %>
     </tbody>
