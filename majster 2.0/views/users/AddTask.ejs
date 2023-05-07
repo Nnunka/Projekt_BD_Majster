@@ -1,0 +1,38 @@
+<%- include('../components/Head')%>
+
+<body>
+
+  <header>
+    <%- include('../components/Navbar')%>
+  </header>
+
+  <ul>
+    <% if(typeof errors != 'undefined') { %> 
+      <% errors.forEach(error=>{%>
+        <li><%= error.message %></li> 
+   <% })  %> <% } %>
+  </ul>
+
+  <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
+    <form action="/users/AddTask" method="POST">
+      <div class="form-group">
+        <label for="">Nazwa zadania</label>
+        <input type="text" class="form-control" id="title" name="title" placeholder="Nazwa zadania" required>
+      </div>
+      <div class="form-group">
+        <label for="">Szczegóły/opis zadania</label>
+        <input type="text" class="form-control" id="details" name="details" placeholder="Szczegóły/opis zadania" required>
+      </div>
+      <div class="form-group">
+        <label for="">Data dodania</label>
+        <input type="date" class="form-control" id="add_date" name="add_date" placeholder="Data dodania" required>
+      </div>
+      <div class="form-group">
+        <label for="">Data rozpoczęcia</label>
+        <input type="date" class="form-control" id="start_date" name="start_date" placeholder="Data rozpoczęcia" required>
+      </div>
+      <button type="submit" class="btn btn-warning">Dodaj zadanie</button>
+    </form>
+  </div>
+
+</body>

@@ -86,7 +86,7 @@ app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
   });
 });  //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
-app.get("/users/SerwisList", checkNotAuthenticated, (req, res) => {
+app.get("/users/ServiceList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
     if (error) throw error;
     const users = results.rows.map(row => ({
@@ -97,7 +97,7 @@ app.get("/users/SerwisList", checkNotAuthenticated, (req, res) => {
       role:row.user_role
     }));
     let index = 0;
-    res.render("users/SerwisList", { users, index });
+    res.render("users/ServiceList", { users, index });
   });
 });  //przejście na stronę Serwis
 
@@ -121,7 +121,7 @@ app.get("/users/AlertList", checkNotAuthenticated, (req, res) => {
 
 app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
   res.render("users/AddUser");
-}); // obsługa żądania get, dodania nowego użytkownika - AddUser
+}); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     res.render("users/Dashboard", {user: req.user.user_login }); 
@@ -193,8 +193,57 @@ app.post('/users/AddUser', async (req, res) => {
 
 //////////////////////////////////////////////
 
+app.get("/users/AddTask", checkNotAuthenticated, (req, res) => {
+  res.render("users/AddTask");
+}); // obsługa żądania get, przejście na stronę - AddTask
 
+// dodanie nowego zadania do bazy poprzez formularz
+app.post('/users/AddTask', async (req, res) => {
 
+  let { title, details, add_date, start_date } = req.body;
+  console.log({
+    title,
+    details,
+    add_date,
+    start_date,
+  })
+  let errors = [];
+
+  if (!title || !details || !add_date || !start_date) {
+    errors.push({ message: "Wypełnij wszystkie pola!" });
+  }
+  if (errors.length > 0) {
+    res.render("users/AddTask", { errors });
+  } else {  
+    // spr czy dany tytuł zadania jest już w bazie
+    pool.query(
+      `SELECT * FROM tasks 
+      WHERE task_title = $1`, [title], (err, result) => {
+        if (err) {
+          throw err
+        }
+        console.log(result.rows);
+        if (result.rows.length > 0) {
+          errors.push({ message: "Takie zadanie jest już w bazie!" })
+          res.render("users/AddTask", { errors });
+        } else {
+          // dodanie użytkownika do bazy
+          pool.query(
+            `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date)
+            VALUES ($1, $2, $3, $4)
+            RETURNING task_id`, [title, details, add_date, start_date],
+            (err, results) => {
+              if (err) {
+                throw err;
+              }
+              console.log(results.rows);
+              console.log("nowy zadanie w bazie") 
+              req.flash("success_msg", "Dodano nowe zadanie");
+              res.redirect("/users/TaskList");
+            })
+        }}
+    )}
+});
 
 
 
