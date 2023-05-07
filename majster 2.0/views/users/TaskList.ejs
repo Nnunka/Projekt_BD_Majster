@@ -10,19 +10,20 @@
     <thead>
       <tr>
         <th scope="col">Nazwa zadania</th>
-        <th scope="col">Opis</th>
+        <th scope="col">Szczegóły/opis zadania</th>
         <th scope="col">Data dodania</th>
+        <th scope="col">Data rozpocęcia</th>
         <th scope="col">Data zakończenia</th>
-        <th scope="col">Data rospoczęcia</th>
       </tr>
     </thead>
     <tbody>
-      <% users.forEach(function(user) { %>
+      <% tasks.forEach(function(task) { %>
         <tr>
-          <td><%= user.name %></td>
-          <td><%= user.surname %></td>
-          <td><%= user.email %></td>
-          <td><%= user.role %></td>
+          <td><%= task.title %></td>
+          <td><%= task.details %></td>
+          <td><%= task.add_date %></td>
+          <td><%= task.start_date %></td>
+          <td><%= task.end_date %></td>
         </tr>
       <% }); %>
     </tbody>

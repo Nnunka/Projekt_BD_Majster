@@ -56,7 +56,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
     let index = 0;
     res.render("users/UsersList", { users, index });
   });
-});  //przejście na stronę Pracownicy
+});  //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
 app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
@@ -69,22 +69,22 @@ app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
     let index = 0;
     res.render("users/MachList", { machines, index });
   });
-});  //przejście na stronę Maszyny
+});  //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
 app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+  pool.query('SELECT task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks', function(error, results, fields) {
     if (error) throw error;
-    const users = results.rows.map(row => ({
-      name: row.user_name,
-      surname: row.user_surname,
-      email: row.user_email,
-      password:row.user_password,
-      role:row.user_role
+    const tasks = results.rows.map(row => ({
+      title: row.task_title,
+      details: row.task_details,
+      add_date: row.task_add_date,
+      start_date: row.task_start_date,
+      end_date: row.task_end_date
     }));
     let index = 0;
-    res.render("users/TaskList", { users, index });
+    res.render("users/TaskList", { tasks, index });
   });
-});  //przejście na stronę Zadania
+});  //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/users/SerwisList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
