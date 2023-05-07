@@ -245,7 +245,12 @@ app.post('/users/AddTask', async (req, res) => {
     )}
 });
 
+////////////////////////////
+app.get("/users/EditTask", checkNotAuthenticated, (req, res) => {
+  res.render("users/EditTask");
+}); // obsługa żądania get, przejście na stronę - EditTask
 
+////////////////////////////
 
 
 
