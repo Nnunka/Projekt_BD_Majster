@@ -59,7 +59,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
-app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
+app.get("/users/MachinesList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
     if (error) throw error;
     const machines = results.rows.map(row => ({
@@ -69,7 +69,7 @@ app.get("/users/MachList", checkNotAuthenticated, (req, res) => {
       status: row.machine_status,
     }));
     let index = 0;
-    res.render("users/MachList", { machines, index });
+    res.render("users/MachinesList", { machines, index });
   });
 }); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
@@ -105,7 +105,7 @@ app.get("/users/ServiceList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
-app.get("/users/AlertList", checkNotAuthenticated, (req, res) => {
+app.get("/users/AlertsList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts', function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
@@ -116,7 +116,7 @@ app.get("/users/AlertList", checkNotAuthenticated, (req, res) => {
       add_date: row.alert_add_date
     }));
     let index = 0;
-    res.render("users/AlertList", { alerts, index });
+    res.render("users/AlertsList", { alerts, index });
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
