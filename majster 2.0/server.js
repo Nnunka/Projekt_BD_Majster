@@ -59,7 +59,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
-app.get("/users/MachinesList", checkNotAuthenticated, (req, res) => {
+app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
     if (error) throw error;
     const machines = results.rows.map(row => ({
@@ -69,11 +69,11 @@ app.get("/users/MachinesList", checkNotAuthenticated, (req, res) => {
       status: row.machine_status,
     }));
     let index = 0;
-    res.render("users/MachinesList", { machines, index });
+    res.render("machines/MachinesList", { machines, index });
   });
 }); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
-app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
+app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks', function(error, results, fields) {
     if (error) throw error;
     const tasks = results.rows.map(row => ({
@@ -85,11 +85,11 @@ app.get("/users/TaskList", checkNotAuthenticated, (req, res) => {
       end_date: row.task_end_date
     }));
     let index = 0;
-    res.render("users/TaskList", { tasks, index });
+    res.render("tasks/TaskList", { tasks, index });
   });
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
-app.get("/users/ServiceList", checkNotAuthenticated, (req, res) => {
+app.get("/services/ServiceList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services', function(error, results, fields) {
     if (error) throw error;
     const services = results.rows.map(row => ({
@@ -101,11 +101,11 @@ app.get("/users/ServiceList", checkNotAuthenticated, (req, res) => {
       end_date: row.service_end_date
     }));
     let index = 0;
-    res.render("users/ServiceList", { services, index });
+    res.render("services/ServiceList", { services, index });
   });
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
-app.get("/users/AlertsList", checkNotAuthenticated, (req, res) => {
+app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts', function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
@@ -116,7 +116,7 @@ app.get("/users/AlertsList", checkNotAuthenticated, (req, res) => {
       add_date: row.alert_add_date
     }));
     let index = 0;
-    res.render("users/AlertsList", { alerts, index });
+    res.render("alerts/AlertsList", { alerts, index });
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
@@ -197,12 +197,12 @@ app.post('/users/AddUser', async (req, res) => {
 
 //////////////////////////////////////////////
 
-app.get("/users/AddTask", checkNotAuthenticated, (req, res) => {
-  res.render("users/AddTask");
+app.get("/tasks/AddTask", checkNotAuthenticated, (req, res) => {
+  res.render("tasks/AddTask");
 }); // obsługa żądania get, przejście na stronę - AddTask
 
 // dodanie nowego zadania do bazy poprzez formularz
-app.post('/users/AddTask', async (req, res) => {
+app.post('/tasks/AddTask', async (req, res) => {
 
   let { title, details, add_date, start_date } = req.body;
   console.log({
@@ -217,7 +217,7 @@ app.post('/users/AddTask', async (req, res) => {
     errors.push({ message: "Wypełnij wszystkie pola!" });
   }
   if (errors.length > 0) {
-    res.render("users/AddTask", { errors });
+    res.render("tasks/AddTask", { errors });
   } else {  
     // spr czy dany tytuł zadania jest już w bazie
     pool.query(
@@ -229,7 +229,7 @@ app.post('/users/AddTask', async (req, res) => {
         console.log(result.rows);
         if (result.rows.length > 0) {
           errors.push({ message: "Takie zadanie jest już w bazie!" })
-          res.render("users/AddTask", { errors });
+          res.render("tasks/AddTask", { errors });
         } else {
           // dodanie użytkownika do bazy
           pool.query(
@@ -243,14 +243,14 @@ app.post('/users/AddTask', async (req, res) => {
               console.log(results.rows);
               console.log("nowy zadanie w bazie") 
               req.flash("success_msg", "Dodano nowe zadanie");
-              res.redirect("/users/TaskList");
+              res.redirect("/tasks/TaskList");
             })
         }}
     )}
 });
 
 //////////////////////////// EDYCJA ZADAŃ
-app.get('/users/EditTask/:id', checkAuthenticated, (req, res) => {
+app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
 
   pool.query('SELECT * FROM tasks WHERE task_id = $1', [taskId], (err, result) => {
@@ -266,12 +266,12 @@ app.get('/users/EditTask/:id', checkAuthenticated, (req, res) => {
     }
 
     const task = result.rows[0];
-    res.render('users/EditTask', { taskId: taskId, taskData: task });
+    res.render('tasks/EditTask', { taskId: taskId, taskData: task });
   });
 }); // obsługa żądania get, przejście na stronę - EditTask
 
 
-app.post('/users/EditTask/:id', checkAuthenticated, (req, res) => {
+app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
 
   const { title, details, add_date, start_date, end_date } = req.body;
@@ -286,7 +286,7 @@ app.post('/users/EditTask/:id', checkAuthenticated, (req, res) => {
         return;
       }
 
-      res.redirect('/users/TaskList');
+      res.redirect('/tasks/TaskList');
     }
   );
 });

@@ -7,7 +7,7 @@
   </header>
   
   <div class="ml-3 mt-3 mb-3">
-    <button class="btn btn-warning"><a href="/users/AddTask" class="text-decoration-none text-dark">Dodaj nowe zadanie</a></button>
+    <button class="btn btn-warning"><a href="/tasks/AddTask" class="text-decoration-none text-dark">Dodaj nowe zadanie</a></button>
   </div>
 
   <table class="table">
@@ -30,7 +30,7 @@
           <td><%= task.start_date %></td>
           <td><%= task.end_date %></td>
           <td>
-            <button class="btn btn-warning"><a href="/users/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+            <button class="btn btn-warning"><a href="/tasks/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
         </tr>
       <% }); %>
