@@ -33,11 +33,19 @@ app.use(flash()); //przechowywanie i wyświetlanie informacji dla użytkowników
 
 app.get("/", (req, res)=>{
   res.render("Login");
-});
+}); // ustawienie strony Logowania jako startowej
 
 app.get("/Login", (req, res) =>{
   res.render("Login");
-});
+}); // obsługa żądania get, przejście na stronę - Login
+
+app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
+  res.render("users/AddUser");
+}); // obsługa żądania get, przejście na stronę - AddUser
+
+app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
+    res.render("users/Dashboard", {user: req.user.user_login }); 
+}); // po zalogowaniu wyświetla login zalogowanego użytkownika - Dashboard
 
 
 
@@ -89,7 +97,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
-app.get("/services/ServiceList", checkNotAuthenticated, (req, res) => {
+app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
   pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services', function(error, results, fields) {
     if (error) throw error;
     const services = results.rows.map(row => ({
@@ -101,7 +109,7 @@ app.get("/services/ServiceList", checkNotAuthenticated, (req, res) => {
       end_date: row.service_end_date
     }));
     let index = 0;
-    res.render("services/ServiceList", { services, index });
+    res.render("services/ServicesList", { services, index });
   });
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
@@ -123,24 +131,7 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
 
 
 
-app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
-  res.render("users/AddUser");
-}); // obsługa żądania get, przejście na stronę - AddUser
-
-app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-    res.render("users/Dashboard", {user: req.user.user_login }); 
-}); // po zalogowaniu wyświetla login zalogowanego użytkownika - Dashboard
-
-// obsługa żądania post, wylogowanie
-app.post("/Logout", (req, res) =>{
-    req.logout(() => {
-        req.flash("success_msg", "Użytkownik wylogowany"); //komunikat flash - Użytkownik wylogowany w panelu logowania
-        res.redirect("/Login"); //przekierowanie do strony logowania
-      });
-});
-
-//////////////////////////////////////////////
-
+//////////////////////////////////DODANIE NOWEGO UŻYTKOWNIKA/////////////////////////////////////////////////
 //dodanie nowego użytkownika do bazy poprzez formularz
 app.post('/users/AddUser', async (req, res) => {
 
@@ -195,11 +186,11 @@ app.post('/users/AddUser', async (req, res) => {
 });
 
 
-//////////////////////////////////////////////
-
+//////////////////////////////////DODANIE NOWEGO ZADANIA/////////////////////////////////////////////////
 app.get("/tasks/AddTask", checkNotAuthenticated, (req, res) => {
   res.render("tasks/AddTask");
 }); // obsługa żądania get, przejście na stronę - AddTask
+
 
 // dodanie nowego zadania do bazy poprzez formularz
 app.post('/tasks/AddTask', async (req, res) => {
@@ -249,7 +240,8 @@ app.post('/tasks/AddTask', async (req, res) => {
     )}
 });
 
-//////////////////////////// EDYCJA ZADAŃ
+
+////////////////////////////////////////EDYCJA ZADAŃ///////////////////////////////////////////
 app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
 
@@ -290,11 +282,17 @@ app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
     }
   );
 });
-////////////////////////////
 
 
 
 
+// obsługa żądania post, wylogowanie
+app.post("/Logout", (req, res) =>{
+  req.logout(() => {
+      req.flash("success_msg", "Użytkownik wylogowany"); //komunikat flash - Użytkownik wylogowany w panelu logowania
+      res.redirect("/Login"); //przekierowanie do strony logowania
+    });
+});
 
 app.post("/Login", 
 passport.authenticate("local", {
@@ -303,10 +301,7 @@ passport.authenticate("local", {
     failureFlash:true
 }));
 
-// Jest to funkcja pośrednicząca, która sprawdza, czy użytkownik jest 
-// uwierzytelniony. Jeśli tak, przekierowuje go na stronę "/users Dashboard",
-// a jeśli nie, przekazuje żądanie dalej za pomocą funkcji next().
-
+// funkcja która sprawdza, czy użytkownik jest uwierzytelniony. Jeśli tak, przekierowuje go na stronę /users/Dashboard, jeśli nie, przekazuje żądanie dalej za pomocą funkcji next()
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
       return next();
@@ -314,18 +309,14 @@ function checkAuthenticated(req, res, next) {
     res.redirect("/Login");
   }
 
-
-// Jest to funkcja pośrednicząca, która sprawdza, czy użytkownik 
-// jest nieuwierzytelniony. Jeśli tak, przekazuje żądanie dalej 
-// za pomocą funkcji next(), a jeśli nie, przekierowuje użytkownika 
-// z powrotem na stronę logowania "/users/logowanie".
-
+// funkcja która sprawdza, czy użytkownik jest uwierzytelniony. Jeśli tak, przekierowuje go na stronę /users/Dashboard, jeśli nie, przekierowuje z powrotem na stronę logowania - /Login.
 function checkNotAuthenticated (req,res,next) {
     if (req.isAuthenticated()) {
         return next();
     }
     res.redirect("/Login");
 }
+
 
 app.listen(PORT, () => {
     console.log(`Serwer działa na porcie ${PORT}`);
