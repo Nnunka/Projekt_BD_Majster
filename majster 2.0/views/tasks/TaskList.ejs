@@ -18,7 +18,8 @@
         <th scope="col">Data dodania</th>
         <th scope="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
-        <th scope="col">Akcje</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -31,6 +32,9 @@
           <td><%= task.end_date %></td>
           <td>
             <button class="btn btn-warning"><a href="/tasks/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+          </td>
+          <td>
+            <button class="btn btn-danger"><a href="/tasks/DeleteTask/<%= task.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
         </tr>
       <% }); %>

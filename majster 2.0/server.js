@@ -284,6 +284,28 @@ app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
 });
 
 
+////////////////////////////////////////USUWANIE ZADAŃ///////////////////////////////////////////
+app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
+  const taskId = req.params.id;
+
+  pool.query(
+    'DELETE FROM tasks WHERE task_id = $1',
+    [taskId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/tasks/TaskList');
+    }
+  );
+});
+
+
+
+
 
 
 // obsługa żądania post, wylogowanie
