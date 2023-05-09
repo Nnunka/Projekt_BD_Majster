@@ -1,0 +1,34 @@
+<%- include('../components/Head')%>
+
+<body>
+
+  <header>
+    <%- include('../components/Navbar')%>
+  </header>
+
+  <ul>
+    <% if(typeof errors != 'undefined') { %> 
+      <% errors.forEach(error=>{%>
+        <li><%= error.message %></li> 
+   <% })  %> <% } %>
+  </ul>
+
+  <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
+    <form action="/machines/AddMachine" method="POST">
+      <div class="form-group">
+        <label for="">Podaj nazwe maszyny</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Nazwa maszyny" required>
+      </div>
+      <div class="form-group">
+        <label for="">Podaj rodzaj maszyny</label>
+        <input type="text" class="form-control" id="type" name="type" placeholder="Rodzaj maszyny" required>
+      </div>
+      <div class="form-group">
+        <label for="">Podaj status maszyny</label>
+        <input type="text" class="form-control" id="status" name="status" placeholder="Status maszyny" required>
+      </div>
+      <button type="submit" class="btn btn-warning">Dodaj maszynę</button>
+    </form>
+  </div>
+
+</body>

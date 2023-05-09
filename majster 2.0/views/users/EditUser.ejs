@@ -1,0 +1,50 @@
+<%- include('../components/Head')%>
+
+<body>
+
+  <header>
+    <%- include('../components/Navbar')%>
+  </header>
+
+  <ul>
+    <% if(typeof errors != 'undefined') { %> 
+      <% errors.forEach(error=>{%>
+        <li><%= error.message %></li> 
+   <% })  %> <% } %>
+  </ul>
+
+  <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
+    <form action="/users/EditUser/<%= userId %>" method="POST">
+      <div class="form-group">
+        <label for="">Imie</label>
+        <input type="text" class="form-control" id="name" name="name" value="<%= userData.user_name %>">
+      </div>
+      <div class="form-group">
+        <label for="">Nazwisko</label>
+        <input type="text" class="form-control" id="surname" name="surname" value="<%= userData.user_surname %>">
+      </div>
+      <div class="form-group">
+        <label for="">Email</label>
+        <input type="email" class="form-control" id="email" name="email" value="<%= userData.user_email %>">
+      </div>
+      <div class="form-group">
+        <label for="">Login</label>
+        <input type="text" class="form-control" id="login" name="login" value="<%= userData.user_login %>">
+      </div>
+      <div class="form-group">
+        <label for="">Hasło</label>
+        <input type="text" class="form-control" id="password" name="password" value="<%= userData.user_password %>">
+      </div>
+      <div class="form-group">
+        <label for="">Rola</label>
+        <select multiple class="form-control" id="role" name="role">
+            <option value="admin">Admin</option>
+            <option value="user">Użytkownik</option>
+            <option value="repairer">Serwisant</option>
+          </select>
+      </div>
+      <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
+    </form>
+  </div>
+
+</body>

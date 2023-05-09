@@ -18,6 +18,8 @@
         <th scope="col">Email</th>
         <th scope="col">Login</th>
         <th scope="col">Rola</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -28,6 +30,12 @@
           <td><%= user.email %></td>
           <td><%= user.login %></td>
           <td><%= user.role %></td>
+          <td>
+            <button class="btn btn-warning"><a href="/users/EditUser/<%= user.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+          </td>
+          <td>
+            <button class="btn btn-danger"><a href="/users/DeleteUser/<%= user.id %>" class="text-decoration-none text-dark">Usuń</a></button>
+          </td>
         </tr>
       <% }); %>
     </tbody>

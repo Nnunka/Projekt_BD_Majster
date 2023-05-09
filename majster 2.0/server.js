@@ -222,7 +222,7 @@ app.post('/tasks/AddTask', async (req, res) => {
           errors.push({ message: "Takie zadanie jest już w bazie!" })
           res.render("tasks/AddTask", { errors });
         } else {
-          // dodanie użytkownika do bazy
+          // dodanie zadania do bazy
           pool.query(
             `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date)
             VALUES ($1, $2, $3, $4)
@@ -235,6 +235,168 @@ app.post('/tasks/AddTask', async (req, res) => {
               console.log("nowy zadanie w bazie") 
               req.flash("success_msg", "Dodano nowe zadanie");
               res.redirect("/tasks/TaskList");
+            })
+        }}
+    )}
+});
+
+//////////////////////////////////DODANIE NOWEJ MASZYNY/////////////////////////////////////////////////
+app.get("/machines/AddMachine", checkNotAuthenticated, (req, res) => {
+  res.render("machines/AddMachine");
+}); // obsługa żądania get, przejście na stronę - AddMachine
+
+
+// dodanie nowej maszyny do bazy poprzez formularz
+app.post('/machines/AddMachine', async (req, res) => {
+
+  let { name, type, status} = req.body;
+  console.log({
+    name,
+    type,
+    status,
+  })
+  let errors = [];
+
+  if (!name || !type || !status) {
+    errors.push({ message: "Wypełnij wszystkie pola!" });
+  }
+  if (errors.length > 0) {
+    res.render("/machines/AddMachine", { errors });
+  } else {  
+    // spr czy dana maszyna jest już w bazie
+    pool.query(
+      `SELECT * FROM machines 
+      WHERE machine_name = $1`, [name], (err, result) => {
+        if (err) {
+          throw err
+        }
+        console.log(result.rows);
+        if (result.rows.length > 0) {
+          errors.push({ message: "Taka maszyna jest już w bazie!" })
+          res.render("/machines/AddMachine", { errors });
+        } else {
+          // dodanie maszyny do bazy
+          pool.query(
+            `INSERT INTO machines (machine_name, machine_type, machine_status)
+            VALUES ($1, $2, $3)
+            RETURNING machine_id`, [name, type, status,],
+            (err, results) => {
+              if (err) {
+                throw err;
+              }
+              console.log(results.rows);
+              console.log("nowa maszyna w bazie") 
+              req.flash("success_msg", "Dodano nową maszynę");
+              res.redirect("/machines/MachinesList");
+            })
+        }}
+    )}
+});
+
+//////////////////////////////////DODANIE NOWEGO SERWISOWANIA/////////////////////////////////////////////////
+app.get("/services/AddService", checkNotAuthenticated, (req, res) => {
+  res.render("services/AddService");
+}); // obsługa żądania get, przejście na stronę - AddService
+
+
+// dodanie nowej zlecenia serwisowego do bazy poprzez formularz
+app.post('/services/AddService', async (req, res) => {
+
+  let { title, machine, details, start_date, end_date} = req.body;
+  console.log({
+    title,
+    machine,
+    details,
+    start_date,
+    end_date,
+  })
+  let errors = [];
+
+  if (!title || !machine || !details || !start_date || !end_date) {
+    errors.push({ message: "Wypełnij wszystkie pola!" });
+  }
+  if (errors.length > 0) {
+    res.render("/services/AddService", { errors });
+  } else {  
+    // spr czy dana maszyna jest już w bazie
+    pool.query(
+      `SELECT * FROM services 
+      WHERE service_title = $1`, [title], (err, result) => {
+        if (err) {
+          throw err
+        }
+        console.log(result.rows);
+        if (result.rows.length > 0) {
+          errors.push({ message: "Taka zlecenie jest już w bazie!" })
+          res.render("/services/AddService", { errors });
+        } else {
+          // dodanie maszyny do bazy
+          pool.query(
+            `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING service_id`, [title, machine, details, start_date, end_date],
+            (err, results) => {
+              if (err) {
+                throw err;
+              }
+              console.log(results.rows);
+              console.log("nowa zleceni serwisowe w bazie") 
+              req.flash("success_msg", "Dodano nowe zlecenie serwisowe");
+              res.redirect("/services/ServicesList");
+            })
+        }}
+    )}
+});
+
+//////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
+app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
+  res.render("alerts/AddAlert");
+}); // obsługa żądania get, przejście na stronę - AddAlert
+
+
+// dodanie nowej zlecenia serwisowego do bazy poprzez formularz
+app.post('/alerts/AddAlert', async (req, res) => {
+
+  let { title, user, details, add_date} = req.body;
+  console.log({
+    title,
+    user,
+    details,
+    add_date,
+  })
+  let errors = [];
+
+  if (!title || !user || !details || !add_date) {
+    errors.push({ message: "Wypełnij wszystkie pola!" });
+  }
+  if (errors.length > 0) {
+    res.render("alerts/AddAlert", { errors });
+  } else {  
+    // spr czy dana zgłosznie jest już w bazie
+    pool.query(
+      `SELECT * FROM alerts 
+      WHERE alert_title = $1`, [title], (err, result) => {
+        if (err) {
+          throw err
+        }
+        console.log(result.rows);
+        if (result.rows.length > 0) {
+          errors.push({ message: "Taka zgłosznie jest już w bazie!" })
+          res.render("alerts/AddAlert", { errors });
+        } else {
+          // dodanie zgłoszenia do bazy
+          pool.query(
+            `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date)
+            VALUES ($1, $2, $3, $4)
+            RETURNING alert_id`, [title, user, details, add_date],
+            (err, results) => {
+              if (err) {
+                throw err;
+              }
+              console.log(results.rows);
+              console.log("nowa zgłoszenie w bazie") 
+              req.flash("success_msg", "Dodano nowe zgłoszenie");
+              res.redirect("/alerts/AlertsList");
             })
         }}
     )}
@@ -283,6 +445,173 @@ app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   );
 });
 
+////////////////////////////////////////EDYCJA UŻYTKOWNIKÓW///////////////////////////////////////////
+app.get('/users/EditUser/:id', checkAuthenticated, (req, res) => {
+  const userId = req.params.id;
+
+  pool.query('SELECT * FROM users WHERE user_id = $1', [userId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const user = result.rows[0];
+    res.render('users/EditUser', { userId: userId, userData: user });
+  });
+}); // obsługa żądania get, przejście na stronę - EditUser
+
+
+app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
+  const userId = req.params.id;
+
+  const { name, surname, email, login, password, role } = req.body;
+
+  pool.query(
+    'UPDATE users SET user_name = $1, user_surname = $2, user_email = $3, user_login = $4, user_password = $5, user_role = $6  WHERE user_id = $7',
+    [name, surname, email, login, password, role, userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/users/UsersList');
+    }
+  );
+});
+
+////////////////////////////////////////EDYCJA MASZYNY///////////////////////////////////////////
+app.get('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
+  const machineId = req.params.id;
+
+  pool.query('SELECT * FROM machines WHERE machine_id = $1', [machineId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const machine = result.rows[0];
+    res.render( 'machines/EditMachine', { machineId: machineId, machineData: machine });
+  });
+}); // obsługa żądania get, przejście na stronę - EditUser
+
+
+app.post('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
+  const machineId = req.params.id;
+
+  const {name, type, status} = req.body;
+
+  pool.query(
+    'UPDATE machines SET machine_name = $1, machine_type = $2, machine_status = $3 WHERE machine_id = $4',
+    [name, type, status, machineId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/machines/MachinesList');
+    }
+  );
+});
+
+////////////////////////////////////////EDYCJA SERWISOWANIA///////////////////////////////////////////
+app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+
+  pool.query('SELECT * FROM services WHERE service_id = $1', [serviceId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const service = result.rows[0];
+    res.render('services/EditService', { serviceId: serviceId, serviceData: service });
+  });
+}); // obsługa żądania get, przejście na stronę - EditService
+
+
+app.post('/services/EditService/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+
+  const { title, machine, details, start_date, end_date } = req.body;
+ 
+  pool.query(
+    'UPDATE services SET service_title = $1, service_machine_id = $2, service_details = $3, service_start_date = $4, service_end_date = $5 WHERE service_id = $6',
+    [title, machine, details, start_date, end_date, serviceId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/services/ServicesList');
+    }
+  );
+});
+
+////////////////////////////////////////EDYCJA SERWISOWANIA///////////////////////////////////////////
+app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
+  const alertId = req.params.id;
+
+  pool.query('SELECT * FROM alerts WHERE alert_id = $1', [alertId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const alert = result.rows[0];
+    res.render('alerts/EditAlert', { alertId: alertId, alertData: alert });
+  });
+}); // obsługa żądania get, przejście na stronę - EditAlert
+
+
+app.post('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
+  const alertId = req.params.id;
+
+  const { title, user, details, add_date } = req.body;
+ 
+  pool.query(
+    'UPDATE alerts SET alert_title = $1, alert_who_add_id = $2, alert_details = $3, alert_add_date = $4 WHERE alert_id = $5',
+    [title, user, details, add_date, alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/alerts/AlertsList');
+    }
+  );
+});
 
 ////////////////////////////////////////USUWANIE ZADAŃ///////////////////////////////////////////
 app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
@@ -303,10 +632,81 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
   );
 });
 
+////////////////////////////////////////USUWANIE UŻYTKOWNIKA///////////////////////////////////////////
+app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
+  const userId = req.params.id;
 
+  pool.query(
+    'DELETE FROM users WHERE user_id = $1',
+    [userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
 
+      res.redirect('/users/UsersList');
+    }
+  );
+});
 
+////////////////////////////////////////USUWANIE MASZYN///////////////////////////////////////////
+app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
+  const machineId = req.params.id;
 
+  pool.query(
+    'DELETE FROM machines WHERE machine_id = $1',
+    [machineId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/machines/MachinesList');
+    }
+  );
+});
+
+////////////////////////////////////////USUWANIE SERWISOWANIA///////////////////////////////////////////
+app.get('/services/DeleteService/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+
+  pool.query(
+    'DELETE FROM services WHERE service_id = $1',
+    [serviceId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/services/ServicesList');
+    }
+  );
+});
+
+////////////////////////////////////////USUWANIE ZGŁOSZEŃ///////////////////////////////////////////
+app.get('/alerts/DeleteAlert/:id', checkAuthenticated, (req, res) => {
+  const alertId = req.params.id;
+
+  pool.query(
+    'DELETE FROM alerts WHERE alert_id = $1',
+    [alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/alerts/AlertsList');
+    }
+  );
+});
 
 // obsługa żądania post, wylogowanie
 app.post("/Logout", (req, res) =>{
