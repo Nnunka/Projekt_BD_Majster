@@ -294,58 +294,44 @@ app.post('/machines/AddMachine', async (req, res) => {
 });
 
 //////////////////////////////////DODANIE NOWEGO SERWISOWANIA/////////////////////////////////////////////////
-app.get("/services/AddService", checkNotAuthenticated, (req, res) => {
-  res.render("services/AddService");
-}); // obsługa żądania get, przejście na stronę - AddService
+app.get('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+
+  pool.query('SELECT * FROM machines WHERE machine_id = $1', [serviceId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const service = result.rows[0];
+    res.render('machines/ServiceMachine', { serviceId: serviceId, serviceData: service });
+  });
+}); // obsługa żądania get, przejście na stronę - EditService
 
 
-// dodanie nowej zlecenia serwisowego do bazy poprzez formularz
-app.post('/services/AddService', async (req, res) => {
+app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
 
-  let { title, machine, details, start_date, end_date} = req.body;
-  console.log({
-    title,
-    machine,
-    details,
-    start_date,
-    end_date,
-  })
-  let errors = [];
-
-  if (!title || !machine || !details || !start_date || !end_date) {
-    errors.push({ message: "Wypełnij wszystkie pola!" });
-  }
-  if (errors.length > 0) {
-    res.render("/services/AddService", { errors });
-  } else {  
-    // spr czy dana maszyna jest już w bazie
-    pool.query(
-      `SELECT * FROM services 
-      WHERE service_title = $1`, [title], (err, result) => {
-        if (err) {
-          throw err
-        }
-        console.log(result.rows);
-        if (result.rows.length > 0) {
-          errors.push({ message: "Taka zlecenie jest już w bazie!" })
-          res.render("/services/AddService", { errors });
-        } else {
-          // dodanie maszyny do bazy
-          pool.query(
-            `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING service_id`, [title, machine, details, start_date, end_date],
-            (err, results) => {
-              if (err) {
-                throw err;
-              }
-              console.log(results.rows);
-              console.log("nowa zleceni serwisowe w bazie") 
-              req.flash("success_msg", "Dodano nowe zlecenie serwisowe");
-              res.redirect("/services/ServicesList");
-            })
-        }}
-    )}
+  const { title, machine, details, start_date, end_date } = req.body;
+ 
+  pool.query(
+    `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
+     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, machine, details, start_date, end_date],
+     (err, results) => {
+      if (err) {
+        throw err;
+      }
+      console.log(results.rows);
+      console.log("nowa maszyna w bazie") 
+      req.flash("success_msg", "Dodano nową maszynę");
+      res.redirect("/machines/MachinesList");
+    });
 });
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
@@ -571,7 +557,7 @@ app.post('/services/EditService/:id', checkAuthenticated, (req, res) => {
   );
 });
 
-////////////////////////////////////////EDYCJA SERWISOWANIA///////////////////////////////////////////
+////////////////////////////////////////EDYCJA ZGŁOSZEŃ///////////////////////////////////////////
 app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
   const alertId = req.params.id;
 
