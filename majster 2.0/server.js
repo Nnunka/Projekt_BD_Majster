@@ -328,10 +328,12 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
         throw err;
       }
       console.log(results.rows);
-      console.log("nowa maszyna w bazie") 
-      req.flash("success_msg", "Dodano nową maszynę");
+      console.log("nowa zlecenie serwisowe w bazie")
+
+      req.flash("success_msg", "Dodano nowego zlecenie serwisowe");
       res.redirect("/machines/MachinesList");
     });
+
 });
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
