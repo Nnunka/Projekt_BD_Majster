@@ -51,7 +51,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
 
 
 app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users WHERE user_status=true ORDER BY user_id', function(error, results, fields) {
+  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users WHERE user_exist=true ORDER BY user_id', function(error, results, fields) {
     if (error) throw error;
     const users = results.rows.map(row => ({
       id: row.user_id,
@@ -68,7 +68,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
 app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines ORDER BY machine_id', function(error, results, fields) {
+  pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines WHERE machine_exist=true ORDER BY machine_id', function(error, results, fields) {
     if (error) throw error;
     const machines = results.rows.map(row => ({
       id: row.machine_id,
@@ -625,7 +625,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
   const userId = req.params.id;
 
   pool.query(
-    'UPDATE users SET user_status=false WHERE user_id = $1',
+    'UPDATE users SET user_exist=false WHERE user_id = $1',
     [userId],
     (err, result) => {
       if (err) {
@@ -644,7 +644,7 @@ app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
   const machineId = req.params.id;
 
   pool.query(
-    'DELETE FROM machines WHERE machine_id = $1',
+    'UPDATE machines SET machine_exist=false  WHERE machine_id = $1',
     [machineId],
     (err, result) => {
       if (err) {
