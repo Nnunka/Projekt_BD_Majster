@@ -51,7 +51,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
 
 
 app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users ORDER BY user_id', function(error, results, fields) {
+  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users WHERE user_status=true ORDER BY user_id', function(error, results, fields) {
     if (error) throw error;
     const users = results.rows.map(row => ({
       id: row.user_id,
@@ -625,7 +625,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
   const userId = req.params.id;
 
   pool.query(
-    'DELETE FROM users WHERE user_id = $1',
+    'UPDATE users SET user_status=false WHERE user_id = $1',
     [userId],
     (err, result) => {
       if (err) {
