@@ -51,7 +51,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
 
 
 app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users', function(error, results, fields) {
+  pool.query('SELECT user_id, user_name, user_surname, user_email, user_login, user_password, user_role FROM users ORDER BY user_id', function(error, results, fields) {
     if (error) throw error;
     const users = results.rows.map(row => ({
       id: row.user_id,
@@ -68,7 +68,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
 app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines', function(error, results, fields) {
+  pool.query('SELECT machine_id, machine_name, machine_type, machine_status FROM machines ORDER BY machine_id', function(error, results, fields) {
     if (error) throw error;
     const machines = results.rows.map(row => ({
       id: row.machine_id,
@@ -82,7 +82,7 @@ app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
 app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks', function(error, results, fields) {
+  pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks ORDER BY task_id', function(error, results, fields) {
     if (error) throw error;
     const tasks = results.rows.map(row => ({
       id: row.task_id,
@@ -98,7 +98,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services', function(error, results, fields) {
+  pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services ORDER BY service_id', function(error, results, fields) {
     if (error) throw error;
     const services = results.rows.map(row => ({
       id: row.service_id,
@@ -114,7 +114,7 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts', function(error, results, fields) {
+  pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts ORDER BY alert_id', function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
       id: row.alert_id,

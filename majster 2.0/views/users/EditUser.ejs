@@ -37,13 +37,13 @@
       </div>
       <div class="form-group">
         <label for="">Rola</label>
-        <select multiple class="form-control" id="role" name="role">
+        <select multiple class="form-control" id="role" name="role" value="<%= userData.user_role %>">
             <option value="admin">Admin</option>
             <option value="user">Użytkownik</option>
             <option value="repairer">Serwisant</option>
           </select>
       </div>
-      <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
+      <button type="submit" class="btn btn-warning">Edytuj użytkownik</button>
     </form>
   </div>
 
