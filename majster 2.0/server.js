@@ -98,12 +98,14 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services ORDER BY service_id', function(error, results, fields) {
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_name, s.service_details, s.service_start_date, s.service_end_date 
+  FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id
+  ORDER BY s.service_id;`, function(error, results, fields) {
     if (error) throw error;
     const services = results.rows.map(row => ({
       id: row.service_id,
       title: row.service_title,
-      machine_id: row.service_machine_id,
+      machine_id: row.machine_name,
       details: row.service_details,
       start_date: row.service_start_date,
       end_date: row.service_end_date
@@ -114,12 +116,13 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts ORDER BY alert_id', function(error, results, fields) {
+  pool.query(`SELECT a.alert_id, a.alert_title, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
+   FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id ORDER BY alert_id`, function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
       id: row.alert_id,
       title: row.alert_title,
-      who_add_id: row.alert_who_add_id,
+      who_add_id: row.who_add,
       details: row.alert_details,
       add_date: row.alert_add_date
     }));
