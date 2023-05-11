@@ -20,7 +20,7 @@ app.use(express.json()); //przetwarzanie danych w formacie JSON
 app.use(session({
     secret: 'secret',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, //wartość true pozwala na przechowywanie danych w sesji
     cookie: {
         maxAge: 60 * 60 * 1000 // ustaw maksymalny czas życia ciasteczka sesji na 1 godzinę
     }
@@ -723,7 +723,7 @@ function checkAuthenticated(req, res, next) {
   }
 
 // funkcja która sprawdza, czy użytkownik jest uwierzytelniony. Jeśli tak, przekierowuje go na stronę /users/Dashboard, jeśli nie, przekierowuje z powrotem na stronę logowania - /Login.
-function checkNotAuthenticated (req,res,next) {
+function checkNotAuthenticated (req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
