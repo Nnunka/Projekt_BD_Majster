@@ -131,6 +131,23 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
+app.get("/realize/RealizeList", checkNotAuthenticated, (req, res) => {
+  pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, t.task_title, rt.realize_id
+  FROM realize_tasks rt
+  INNER JOIN users u ON u.user_id = rt.realize_user_id
+  INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
+  INNER JOIN tasks t ON t.task_id = rt.realize_task_id;`, function(error, results, fields) {
+    if (error) throw error;
+    const realize = results.rows.map(row => ({
+      id: row.realize_id,
+      person: row.person_details,
+      machine: row.machine_name,
+      task: row.task_name
+    }));
+    let index = 0;
+    res.render("realize/RealizeList", { realize, index });
+  });
+}); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
 
 

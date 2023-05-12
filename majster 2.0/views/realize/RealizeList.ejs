@@ -1,0 +1,42 @@
+<%- include('../components/Head')%>
+
+<body>
+
+  <header>
+    <%- include('../components/Navbar')%>
+  </header>
+  
+  <div class="ml-3 mt-3 mb-3">
+    <button class="btn btn-warning"><a href="/realize/AddRealize" class="text-decoration-none text-dark">Przydziel zadanie</a></button>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Imię i Nazwisko</th>
+        <th scope="col">Nazwa maszyny</th>
+        <th scope="col">Nazwa zadania</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% realize.forEach(function(realize) { %>
+        <tr>
+          <td><%= realize.name %></td>
+          <td><%= realize.machine %></td>
+          <td><%= realize.task %></td>
+          <td>
+            <button class="btn btn-warning"><a href="/users/EditUser/<%= realize.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+          </td>
+          <td>
+            <button class="btn btn-danger"><a href="/users/DeleteUser/<%= realize.id %>" class="text-decoration-none text-dark">Usuń</a></button>
+          </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+
+</body>
+
+
