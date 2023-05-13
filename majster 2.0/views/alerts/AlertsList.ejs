@@ -28,7 +28,7 @@
           <td><%= alert.title %></td>
           <td><%= alert.who_add_id %></td>
           <td><%= alert.details %></td>
-          <td><%= alert.add_date %></td>
+          <td><%= moment(alert.add_date).format('DD-MM-YYYY')%></td>
           <% if (userRole === 'admin' || userRole === 'repairer') { %>
           <td>
             <button class="btn btn-warning"><a href="/alerts/EditAlert/<%= alert.id %>" class="text-decoration-none text-dark">Edytuj</a></button>

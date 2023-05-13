@@ -30,6 +30,7 @@
       <div class="form-group">
         <label for="">Data dodania</label>
         <input type="date" class="form-control" id="add_date" name="add_date" value="<%= alertData.alert_add_date %>">
+        <p class="text-secondary">Obecna data: <%= moment(alertData.alert_add_date).format('DD-MM-YYYY')%></p>
       </div>
     
       <button type="submit" class="btn btn-warning">Edytuj zgłoszenie</button>

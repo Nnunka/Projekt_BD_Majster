@@ -113,6 +113,7 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
       end_date: row.service_end_date
     }));
     let index = 0;
+    res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
     res.render("services/ServicesList", { services, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
@@ -129,6 +130,7 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
       add_date: row.alert_add_date
     }));
     let index = 0;
+    res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
     res.render("alerts/AlertsList", { alerts, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
@@ -416,6 +418,7 @@ app.post('/alerts/AddAlert', async (req, res) => {
 ////////////////////////////////////////EDYCJA ZADAŃ///////////////////////////////////////////
 app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
+  res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
 
   pool.query('SELECT * FROM tasks WHERE task_id = $1', [taskId], (err, result) => {
     if (err) {
@@ -542,6 +545,7 @@ app.post('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
 ////////////////////////////////////////EDYCJA SERWISOWANIA///////////////////////////////////////////
 app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
   const serviceId = req.params.id;
+  res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
 
   pool.query('SELECT * FROM services WHERE service_id = $1', [serviceId], (err, result) => {
     if (err) {
@@ -584,6 +588,7 @@ app.post('/services/EditService/:id', checkAuthenticated, (req, res) => {
 ////////////////////////////////////////EDYCJA ZGŁOSZEŃ///////////////////////////////////////////
 app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
   const alertId = req.params.id;
+  res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
 
   pool.query('SELECT * FROM alerts WHERE alert_id = $1', [alertId], (err, result) => {
     if (err) {

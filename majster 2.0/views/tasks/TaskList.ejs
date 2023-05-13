@@ -31,9 +31,9 @@
         <tr>
           <td><%= task.title %></td>
           <td><%= task.details %></td>
-          <td><%= moment(task.add_date).format('YYYY-MM-DD') %></td>
-          <td><%= moment(task.start_date).format('YYYY-MM-DD') %></td>
-          <td><%= moment(task.end_date).format('YYYY-MM-DD') %></td>
+          <td><%= moment(task.add_date).format('DD-MM-YYYY') %></td>
+          <td><%= moment(task.start_date).format('DD-MM-YYYY') %></td>
+          <td><%= moment(task.end_date).format('DD-MM-YYYY') %></td>
           <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/tasks/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
