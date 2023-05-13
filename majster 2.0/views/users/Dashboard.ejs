@@ -7,7 +7,17 @@
   </header>
 
   <div class="col-md-12 text-center font-weight-bold mt-5">
-    <p>Zalogowano jako <%=appuser%></p>
+    <p>Zalogowano jako: <%= appuser%></p>
+
+     <% if (userRole === 'admin') { %>
+      <p>Rola: admin</p>
+      <% } 
+      else if (userRole === 'user') { %>
+        <p>Rola: pracownik</p>
+      <% } 
+      else if (userRole === 'repairer') { %>
+        <p>Rola: serwisant</p>
+      <% } %>
   </div>
 
 </body>

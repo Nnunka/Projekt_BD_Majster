@@ -44,8 +44,8 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 }); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-    res.render("users/Dashboard", {appuser: req.user.user_login}); 
-}); // po zalogowaniu wyświetla login zalogowanego użytkownika - Dashboard
+    res.render("users/Dashboard", {appuser: req.user.user_login, userRole: req.user.user_role}); 
+}); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
 
 
@@ -77,7 +77,7 @@ app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
       status: row.machine_status,
     }));
     let index = 0;
-    res.render("machines/MachinesList", { machines, index });
+    res.render("machines/MachinesList", { machines, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
@@ -93,7 +93,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
       end_date: row.task_end_date
     }));
     let index = 0;
-    res.render("tasks/TaskList", { tasks, index });
+    res.render("tasks/TaskList", { tasks, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
@@ -111,7 +111,7 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
       end_date: row.service_end_date
     }));
     let index = 0;
-    res.render("services/ServicesList", { services, index });
+    res.render("services/ServicesList", { services, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
@@ -127,7 +127,7 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
       add_date: row.alert_add_date
     }));
     let index = 0;
-    res.render("alerts/AlertsList", { alerts, index });
+    res.render("alerts/AlertsList", { alerts, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
@@ -145,7 +145,7 @@ app.get("/realize/RealizeList", checkNotAuthenticated, (req, res) => {
       task: row.task_name
     }));
     let index = 0;
-    res.render("realize/RealizeList", { realize, index });
+    res.render("realize/RealizeList", { realize, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
