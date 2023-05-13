@@ -6,7 +6,9 @@
     <%- include('../components/Navbar')%>
   </header>
   <div class="ml-3 mt-3 mb-3">
+    <% if (userRole === 'admin') { %>
     <button class="btn btn-warning"><a href="/machines/AddMachine" class="text-decoration-none text-dark">Dodaj nową maszynę</a></button>
+    <% } %>
   </div>
   
   <table class="table">
@@ -15,8 +17,10 @@
         <th scope="col">Nazwa</th>
         <th scope="col">Rodzaj</th>
         <th scope="col">Status</th>
-        <th scope="col">Akcje</th>
+        <% if (userRole === 'admin') { %>
         <th scope="col"></th>
+        <th scope="col"></th>
+        <% } %>
         <th scope="col"></th>
       </tr>
     </thead>
@@ -26,12 +30,14 @@
           <td><%= machine.name %></td>
           <td><%= machine.type %></td>
           <td><%= machine.status %></td>
+          <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/machines/EditMachine/<%= machine.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
           <td>
             <button class="btn btn-danger"><a href="/machines/DeleteMachine/<%= machine.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
+          <% } %>
           <td>
             <button class="btn btn-warning"><a href="/machines/ServiceMachine/<%= machine.id %>" class="text-decoration-none text-dark">Serwis</a></button>
           </td>

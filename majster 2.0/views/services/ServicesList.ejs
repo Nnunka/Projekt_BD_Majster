@@ -13,9 +13,10 @@
         <th scope="col">Opis</th>
         <th scope="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
+        <% if (userRole === 'admin' || userRole === 'repairer') { %>
         <th scope="col"></th>
         <th scope="col"></th>
-
+        <% } %>
       </tr>
     </thead>
     <tbody>
@@ -26,12 +27,14 @@
           <td><%= service.details %></td>
           <td><%= service.start_date %></td>
           <td><%= service.end_date %></td>
+          <% if (userRole === 'admin' || userRole === 'repairer') { %>
           <td>
             <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
           <td>
             <button class="btn btn-danger"><a href="/services/DeleteService/<%= service.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
+          <% } %>
         </tr>
       <% }); %>
     </tbody>
