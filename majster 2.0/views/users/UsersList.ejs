@@ -6,11 +6,11 @@
     <%- include('../components/Navbar')%>
   </header>
 
+  <% if (userRole === 'admin') { %>
   <div class="ml-3 mt-3 mb-3">
-    <% if (userRole === 'admin') { %>
     <button class="btn btn-warning"><a href="/users/AddUser" class="text-decoration-none text-dark">Dodaj nowego użytkownika</a></button>
-    <% } %>
   </div>
+  <% } %>
 
   <table class="table">
     <thead>

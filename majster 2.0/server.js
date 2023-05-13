@@ -4,6 +4,7 @@ const passport = require("passport");
 const flash = require("express-flash");
 const session = require("express-session");
 const path = require("path");
+const moment = require('moment'); //biblioteka moment to zmiany formatu daty
 require("dotenv").config();
 
 const app = express();
@@ -93,6 +94,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
       end_date: row.task_end_date
     }));
     let index = 0;
+    res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
     res.render("tasks/TaskList", { tasks, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych

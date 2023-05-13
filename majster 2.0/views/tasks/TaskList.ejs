@@ -6,11 +6,11 @@
     <%- include('../components/Navbar')%>
   </header>
   
+  <% if (userRole === 'admin') { %>
   <div class="ml-3 mt-3 mb-3">
-    <% if (userRole === 'admin') { %>
     <button class="btn btn-warning"><a href="/tasks/AddTask" class="text-decoration-none text-dark">Dodaj nowe zadanie</a></button>
-    <% } %>
   </div>
+  <% } %>
 
   <table class="table">
     <thead>
@@ -31,9 +31,9 @@
         <tr>
           <td><%= task.title %></td>
           <td><%= task.details %></td>
-          <td><%= task.add_date %></td>
-          <td><%= task.start_date %></td>
-          <td><%= task.end_date %></td>
+          <td><%= moment(task.add_date).format('YYYY-MM-DD') %></td>
+          <td><%= moment(task.start_date).format('YYYY-MM-DD') %></td>
+          <td><%= moment(task.end_date).format('YYYY-MM-DD') %></td>
           <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/tasks/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>

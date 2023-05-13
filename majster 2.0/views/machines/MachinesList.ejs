@@ -5,11 +5,11 @@
   <header>
     <%- include('../components/Navbar')%>
   </header>
+  <% if (userRole === 'admin') { %>
   <div class="ml-3 mt-3 mb-3">
-    <% if (userRole === 'admin') { %>
     <button class="btn btn-warning"><a href="/machines/AddMachine" class="text-decoration-none text-dark">Dodaj nową maszynę</a></button>
-    <% } %>
   </div>
+  <% } %>
   
   <table class="table">
     <thead>
