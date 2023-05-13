@@ -7,7 +7,7 @@
   </header>
 
   <div class="ml-3 mt-3 mb-3">
-    <% if (appuser === 'admin') { %>
+    <% if (userRole === 'admin') { %>
     <button class="btn btn-warning"><a href="/users/AddUser" class="text-decoration-none text-dark">Dodaj nowego użytkownika</a></button>
     <% } %>
   </div>
@@ -20,7 +20,7 @@
         <th scope="col">Email</th>
         <th scope="col">Login</th>
         <th scope="col">Rola</th>
-        <% if (appuser === 'admin') { %>
+        <% if (userRole === 'admin') { %>
         <th scope="col"></th>
         <th scope="col"></th>
         <% } %>
@@ -34,7 +34,7 @@
           <td><%= user.email %></td>
           <td><%= user.login %></td>
           <td><%= user.role %></td>
-          <% if (appuser === 'admin') { %>
+          <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/users/EditUser/<%= user.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>

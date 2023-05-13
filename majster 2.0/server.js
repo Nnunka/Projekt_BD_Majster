@@ -63,7 +63,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
       role: row.user_role
     }));
     let index = 0;
-    res.render("users/UsersList", { users, index, appuser: req.user.user_role}); //odwołanie się do roli użytkownika poprzez role
+    res.render("users/UsersList", { users, index, userRole: req.user.user_role}); //odwołanie się do roli użytkownika poprzez zmienną userRole
   });
 }); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 
