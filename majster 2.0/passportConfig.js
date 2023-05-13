@@ -13,9 +13,9 @@ function initialize (passport) {
         console.log(results.rows);
 
           if (results.rows.length > 0) {
-            const user = results.rows[0];
-            if (password === user.user_password) { 
-              return done(null, user);
+            const appuser = results.rows[0];
+            if (password === appuser.user_password) { 
+              return done(null, appuser);
               } else {
                 return done(null, false, { message: "Podałeś złe hasło!" });
               }
@@ -35,7 +35,7 @@ function initialize (passport) {
     );
 
     // Serializuj użytkownika
-    passport.serializeUser((user, done) => done(null, user.user_id));
+    passport.serializeUser((appuser, done) => done(null, appuser.user_id));
 
     passport.deserializeUser((id, done) => {
         pool.query(`SELECT * FROM users WHERE user_id = $1`, [id], (err, results) => {

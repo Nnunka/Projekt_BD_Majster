@@ -44,7 +44,7 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 }); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-    res.render("users/Dashboard", {user: req.user.user_login }); 
+    res.render("users/Dashboard", {appuser: req.user.user_login}); 
 }); // po zalogowaniu wyświetla login zalogowanego użytkownika - Dashboard
 
 
@@ -63,7 +63,7 @@ app.get("/users/UsersList", checkNotAuthenticated, (req, res) => {
       role: row.user_role
     }));
     let index = 0;
-    res.render("users/UsersList", { users, index });
+    res.render("users/UsersList", { users, index, appuser: req.user.user_role}); //odwołanie się do roli użytkownika poprzez role
   });
 }); //przejście na stronę Pracownicy wraz z wyświetleniem pracowników zawartych w bazie danych
 

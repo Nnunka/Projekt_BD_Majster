@@ -5,9 +5,11 @@
   <header>
     <%- include('../components/Navbar')%>
   </header>
-  
+
   <div class="ml-3 mt-3 mb-3">
+    <% if (appuser === 'admin') { %>
     <button class="btn btn-warning"><a href="/users/AddUser" class="text-decoration-none text-dark">Dodaj nowego użytkownika</a></button>
+    <% } %>
   </div>
 
   <table class="table">
@@ -18,8 +20,10 @@
         <th scope="col">Email</th>
         <th scope="col">Login</th>
         <th scope="col">Rola</th>
+        <% if (appuser === 'admin') { %>
         <th scope="col"></th>
         <th scope="col"></th>
+        <% } %>
       </tr>
     </thead>
     <tbody>
@@ -30,12 +34,14 @@
           <td><%= user.email %></td>
           <td><%= user.login %></td>
           <td><%= user.role %></td>
+          <% if (appuser === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/users/EditUser/<%= user.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
           <td>
             <button class="btn btn-danger"><a href="/users/DeleteUser/<%= user.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
+          <% } %>
         </tr>
       <% }); %>
     </tbody>
