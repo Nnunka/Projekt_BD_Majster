@@ -674,6 +674,50 @@ app.post('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
   );
 });
 
+////////////////////////////////////////EDYCJA REALIZACJI///////////////////////////////////////////
+app.get('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
+  const realizeId = req.params.id;
+  res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
+
+  pool.query('SELECT * FROM realize_tasks WHERE realize_id = $1', [realizeId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const realize = result.rows[0];
+    res.render('realizes/EditRealize', { realizeId: realizeId, realizeData: realize });
+  });
+}); // obsługa żądania get, przejście na stronę - EditAlert
+
+
+app.post('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
+  const realizeId = req.params.id;
+
+  const { who_do, machine, task } = req.body;
+ 
+  pool.query(
+    'UPDATE realize_tasks SET realize_user_id = $1, realize_machine_id = $2, realize_task_id = $3 WHERE realize_id = $4',
+    [who_do, machine, task, realizeId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/realizes/RealizesList');
+    }
+  );
+});
+
+
 ////////////////////////////////////////USUWANIE ZADAŃ///////////////////////////////////////////
 app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
