@@ -18,9 +18,11 @@
       <div class="form-group">
         <label for="">Kto ma wykonać</label>
         <select id="who_do" name="who_do">
-          <% realizeData.forEach(function(realizeData) { %>
+          <% realizeData.forEach(function(realizeData) { 
+            
+            if(realizeData.Uid != 'NULL' ) {%> 
             <option value="<%=realizeData.Uid %>"><%= realizeData.person %>  </option>
-            <% }); %>
+            <% }}); %>
         </select>
       </div>
       <div class="form-group">
