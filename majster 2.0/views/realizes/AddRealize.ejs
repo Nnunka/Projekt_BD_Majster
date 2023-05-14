@@ -14,31 +14,16 @@
   </ul>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
-    <form action="/tasks/EditTask/<%= taskId %>" method="POST">
+    <form action="/realizes/AddRealize/<%= realizeId %>" method="POST">
       <div class="form-group">
-        <label for="">Nazwa zadania</label>
-        <input type="text" class="form-control" id="title" name="title" value="<%= taskData.task_title %>">
+        <label for="">Kto ma wykonać</label>
+        <input type="number" class="form-control" id="who_do" name="who_do">
       </div>
       <div class="form-group">
-        <label for="">Szczegóły/opis zadania</label>
-        <input type="text" class="form-control" id="details" name="details" value="<%= taskData.task_details %>">
+        <label for="">Na jakiej maszynie</label>
+        <input type="number" class="form-control" id="machine" name="machine"/>
       </div>
-      <div class="form-group">
-        <label for="">Data dodania</label>
-        <input type="date" class="form-control" id="add_date" name="add_date" value="<%= taskData.task_add_date %>">
-        <p class="text-secondary">Obecna data: <%= moment(taskData.task_add_date).format('DD-MM-YYYY')%></p>
-      </div>
-      <div class="form-group">
-        <label for="">Data rozpoczęcia</label>
-        <input type="date" class="form-control" id="start_date" name="start_date" value="<%= taskData.task_start_date %>">
-        <p class="text-secondary">Obecna data: <%= moment(taskData.task_add_date).format('DD-MM-YYYY')%></p>
-      </div>
-      <div class="form-group">
-        <label for="">Data zakończenia</label>
-        <input type="date" class="form-control" id="end_date" name="end_date" value="<%= taskData.task_end_date %>">
-        <p class="text-secondary">Obecna data: <%= moment(taskData.task_end_date).format('DD-MM-YYYY')%></p>
-      </div>
-      <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
+      <button type="submit" class="btn btn-warning">Zleć realizacje</button>
     </form>
   </div>
 

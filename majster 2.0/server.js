@@ -430,29 +430,29 @@ app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
       return;
     }
 
-    const service = result.rows[0];
-    res.render('machines/ServiceMachine', { serviceId: serviceId, serviceData: service });
+    const realize = result.rows[0];
+    res.render('realizes/AddRealize', { realizeId: realizeId, realizeData: realize });
   });
 }); // obsługa żądania get, przejście na stronę - EditService
 
 
-app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
-  const serviceId = req.params.id;
+app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
+  const realizeId = req.params.id;
 
-  const { title, machine, details, start_date, end_date } = req.body;
+  const { who_do, machine} = req.body;
  
   pool.query(
-    `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
-     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, machine, details, start_date, end_date],
+    `INSERT INTO realize_tasks (realize_user_id, realize_machine_id,realize_task_id)
+     VALUES ($1,$2,$3) RETURNING realize_id`,[who_do, machine, realizeId],
      (err, results) => {
       if (err) {
         throw err;
       }
       console.log(results.rows);
-      console.log("nowa zlecenie serwisowe w bazie")
+      console.log("Zadanie zostało przydzielone")
 
-      req.flash("success_msg", "Dodano nowego zlecenie serwisowe");
-      res.redirect("/machines/MachinesList");
+      req.flash("success_msg", "Dodano realizacjie do bazy");
+      res.redirect("/tasks/TaskList");
     });
 
 });
