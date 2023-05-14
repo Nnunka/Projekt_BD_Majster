@@ -418,22 +418,26 @@ app.post('/alerts/AddAlert', async (req, res) => {
 app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
   const realizeId = req.params.id;
 
-  pool.query('SELECT * FROM tasks WHERE task_id = $1', [realizeId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.sendStatus(500);
-      return;
-    }
-
-    if (result.rows.length === 0) {
-      res.sendStatus(404);
-      return;
-    }
-
-    const realize = result.rows[0];
-    res.render('realizes/AddRealize', { realizeId: realizeId, realizeData: realize });
+  pool.query(`SELECT user_id,CONCAT(user_name,' ', user_surname) AS person_details , NULL AS machine_id, NULL AS machine_name, NULL AS task_title
+  FROM users
+  UNION ALL
+  SELECT NULL AS user_id, NULL AS person_details, machine_id, machine_name, NULL AS task_title
+  FROM machines
+  UNION ALL
+  SELECT NULL AS user_id, NULL AS person_details, NULL AS machine_id, NULL AS machine_name, task_title
+  FROM tasks;`, function(error, results, fields) {
+    if (error) throw error;
+    const realize = results.rows.map(row => ({
+      Uid: row.user_id,
+      person: row.person_details,
+      Mid: row.machine_id,
+      machine: row.machine_name,
+      task: row.task_title
+    }));
+    let index = 0;
+    res.render("realizes/AddRealize", { realizeId:realizeId, realizeData:realize });
   });
-}); // obsługa żądania get, przejście na stronę - EditService
+}) // obsługa żądania get, przejście na stronę - EditService
 
 
 app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
@@ -443,7 +447,7 @@ app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
  
   pool.query(
     `INSERT INTO realize_tasks (realize_user_id, realize_machine_id,realize_task_id)
-     VALUES ($1,$2,$3) RETURNING realize_id`,[who_do, machine, realizeId],
+     VALUES ( $1::bigint, $2::bigint , $3) RETURNING realize_id`,[who_do, machine, realizeId],
      (err, results) => {
       if (err) {
         throw err;
