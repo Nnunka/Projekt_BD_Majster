@@ -813,6 +813,26 @@ app.get('/alerts/DeleteAlert/:id', checkAuthenticated, (req, res) => {
   );
 });
 
+////////////////////////////////////////USUWANIE REALIZACJI///////////////////////////////////////////
+app.get('/realizes/DeleteRealize/:id', checkAuthenticated, (req, res) => {
+  const realizeId = req.params.id;
+
+  pool.query(
+    'DELETE FROM realize_tasks WHERE realize_id = $1',
+    [realizeId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/realizes/RealizesList');
+    }
+  );
+});
+
+
 // obsługa żądania post, wylogowanie
 app.post("/Logout", (req, res) =>{
   req.logout(() => {
