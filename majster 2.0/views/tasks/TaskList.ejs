@@ -36,6 +36,9 @@
           <td><%= moment(task.end_date).format('DD-MM-YYYY') %></td>
           <% if (userRole === 'admin') { %>
           <td>
+            <button class="btn btn-warning"><a href="/realize/AddRealize/<%=task.id %>" class="text-decoration-none text-dark">Przydziel zadanie</a></button>
+          </td>
+          <td>
             <button class="btn btn-warning"><a href="/tasks/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
           <td>
