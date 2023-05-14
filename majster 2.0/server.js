@@ -135,7 +135,7 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
-app.get("/realize/RealizeList", checkNotAuthenticated, (req, res) => {
+app.get("/realizes/RealizesList", checkNotAuthenticated, (req, res) => {
   pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, t.task_title, rt.realize_id
   FROM realize_tasks rt
   INNER JOIN users u ON u.user_id = rt.realize_user_id
@@ -149,7 +149,7 @@ app.get("/realize/RealizeList", checkNotAuthenticated, (req, res) => {
       task: row.task_name
     }));
     let index = 0;
-    res.render("realize/RealizeList", { realize, index, userRole: req.user.user_role });
+    res.render("realizes/RealizesList", { realize, index, userRole: req.user.user_role });
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
@@ -413,6 +413,52 @@ app.post('/alerts/AddAlert', async (req, res) => {
         }}
     )}
 });
+
+//////////////////////////////////DODANIE ZADANIA DO REALIZACJI/////////////////////////////////////////////////
+app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
+  const realizeId = req.params.id;
+
+  pool.query('SELECT * FROM tasks WHERE task_id = $1', [realizeId], (err, result) => {
+    if (err) {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+
+    const service = result.rows[0];
+    res.render('machines/ServiceMachine', { serviceId: serviceId, serviceData: service });
+  });
+}); // obsługa żądania get, przejście na stronę - EditService
+
+
+app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+
+  const { title, machine, details, start_date, end_date } = req.body;
+ 
+  pool.query(
+    `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
+     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, machine, details, start_date, end_date],
+     (err, results) => {
+      if (err) {
+        throw err;
+      }
+      console.log(results.rows);
+      console.log("nowa zlecenie serwisowe w bazie")
+
+      req.flash("success_msg", "Dodano nowego zlecenie serwisowe");
+      res.redirect("/machines/MachinesList");
+    });
+
+});
+
+
+
 
 
 ////////////////////////////////////////EDYCJA ZADAŃ///////////////////////////////////////////
