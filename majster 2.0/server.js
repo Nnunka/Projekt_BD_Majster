@@ -456,7 +456,7 @@ app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
       console.log("Zadanie zostało przydzielone")
 
       req.flash("success_msg", "Dodano realizacjie do bazy");
-      res.redirect("/tasks/TaskList");
+      res.redirect("/realizes/RealizesList");
     });
 
 });

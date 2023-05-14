@@ -20,7 +20,7 @@
         <select id="who_do" name="who_do">
           <% realizeData.forEach(function(realizeData) { 
             
-            if(realizeData.Uid != 'NULL' ) {%> 
+            if(realizeData.Uid != null ) {%> 
             <option value="<%=realizeData.Uid %>"><%= realizeData.person %>  </option>
             <% }}); %>
         </select>
@@ -28,9 +28,10 @@
       <div class="form-group">
         <label for="">Na jakiej maszynie</label>
         <select id="machine" name="machine">
-          <% realizeData.forEach(function(realizeData) { %>
+          <% realizeData.forEach(function(realizeData) { 
+            if(realizeData.machine != null ) {%> 
             <option value="<%=realizeData.Mid %>"><%= realizeData.machine %>  </option>
-            <% }); %>
+            <% }}); %>
         </select>
       </div>
       <button type="submit" class="btn btn-warning">Zleć realizacje</button>
