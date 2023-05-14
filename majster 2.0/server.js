@@ -146,7 +146,7 @@ app.get("/realizes/RealizesList", checkNotAuthenticated, (req, res) => {
       id: row.realize_id,
       person: row.person_details,
       machine: row.machine_name,
-      task: row.task_name
+      task: row.task_title
     }));
     let index = 0;
     res.render("realizes/RealizesList", { realize, index, userRole: req.user.user_role });
