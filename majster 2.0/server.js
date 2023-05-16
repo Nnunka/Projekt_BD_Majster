@@ -419,10 +419,10 @@ app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
   const realizeId = req.params.id;
 
   pool.query(`SELECT user_id,CONCAT(user_name,' ', user_surname) AS person_details , NULL AS machine_id, NULL AS machine_name, NULL AS task_title
-  FROM users
+  FROM users WHERE user_exist=true
   UNION ALL
   SELECT NULL AS user_id, NULL AS person_details, machine_id, machine_name, NULL AS task_title
-  FROM machines
+  FROM machines WHERE machine_exist=true
   UNION ALL
   SELECT NULL AS user_id, NULL AS person_details, NULL AS machine_id, NULL AS machine_name, task_title
   FROM tasks;`, function(error, results, fields) {
