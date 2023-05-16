@@ -12,8 +12,10 @@
         <th scope="col">Imię i Nazwisko</th>
         <th scope="col">Nazwa maszyny</th>
         <th scope="col">Nazwa zadania</th>
+        <% if (userRole === 'admin') { %>
         <th scope="col"></th>
         <th scope="col"></th>
+        <% } %>
       </tr>
     </thead>
     <tbody>
@@ -22,12 +24,14 @@
           <td><%= realize.person %></td>
           <td><%= realize.machine %></td>
           <td><%= realize.task %></td>
+          <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/realizes/EditREalize/<%= realize.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
           <td>
             <button class="btn btn-danger"><a href="/realizes/DeleteRealize/<%= realize.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
+          <% } %>
         </tr>
       <% }); %>
     </tbody>
