@@ -21,7 +21,12 @@
       </div>
       <div class="form-group">
         <label for="">Zgłaszający</label>
-        <input type="text" class="form-control" id="user" name="user" value="<%= alertData.alert_who_add_id %>">
+        <select id="user" name="user">
+          <% userData.forEach(function(userData) { 
+            
+            if(userData.exist != false ) {%> 
+            <option value="<%=userData.Uid %>"><%= userData.person %>  </option>
+            <% }}); %>
       </div>
       <div class="form-group">
         <label for="">Szczegóły/opis</label>

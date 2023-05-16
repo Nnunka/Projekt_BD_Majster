@@ -660,7 +660,16 @@ app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
     }
 
     const alert = result.rows[0];
-    res.render('alerts/EditAlert', { alertId: alertId, alertData: alert });
+
+    pool.query(`SELECT user_id, CONCAT(user_name,' ', user_surname) AS person_name FROM users`, function(error, results) {
+      if (error) throw error;
+    const user = results.rows.map(row => ({
+      Uid: row.user_id,
+      person: row.person_name,
+      exist: row.user_exist
+    }));
+      res.render('alerts/EditAlert', { alertId: alertId, alertData: alert, userData: user });
+    });
   });
 }); // obsługa żądania get, przejście na stronę - EditAlert
 
