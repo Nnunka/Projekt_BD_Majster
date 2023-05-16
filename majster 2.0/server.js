@@ -697,24 +697,30 @@ app.post('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
 ////////////////////////////////////////EDYCJA REALIZACJI///////////////////////////////////////////
 app.get('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
   const realizeId = req.params.id;
-  res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
+  res.locals.moment = moment; // Trzeba zdefiniować, aby móc używać biblioteki moment do formatowania daty
 
-  pool.query('SELECT * FROM realize_tasks WHERE realize_id = $1', [realizeId], (err, result) => {
-    if (err) {
-      console.error(err);
-      res.sendStatus(500);
-      return;
+  pool.query(
+    `SELECT u.user_id, CONCAT(u.user_name,' ', u.user_surname) AS person, m.machine_id, m.machine_name, t.task_title, t.task_id
+    FROM realize_tasks rt
+    INNER JOIN users u ON rt.realize_user_id = u.user_id
+    INNER JOIN machines m ON rt.realize_machine_id = m.machine_id
+    INNER JOIN tasks t ON rt.realize_task_id = t.task_id`,
+    function (error, results) {
+      if (error) throw error;
+      
+      const realizeData = results.rows.map((row) => ({
+        Uid: row.user_id,
+        person: row.person,
+        MId: row.machine_id,
+        machine: row.machine_name,
+        TId: row.task_id,
+        task: row.task_title
+      }));
+
+      res.render('realizes/EditRealize', { realizeData: realizeData, realizeId: realizeId });
     }
-
-    if (result.rows.length === 0) {
-      res.sendStatus(404);
-      return;
-    }
-
-    const realize = result.rows[0];
-    res.render('realizes/EditRealize', { realizeId: realizeId, realizeData: realize });
-  });
-}); // obsługa żądania get, przejście na stronę - EditAlert
+  );
+});
 
 
 app.post('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
