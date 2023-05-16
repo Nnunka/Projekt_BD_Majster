@@ -346,7 +346,7 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
  
   pool.query(
     `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
-     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, machine, details, start_date, end_date],
+     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, serviceId, details, start_date, end_date],
      (err, results) => {
       if (err) {
         throw err;
