@@ -21,7 +21,13 @@
       </div>
       <div class="form-group">
         <label for="">Maszyna</label>
-        <input type="text" class="form-control" id="machine" name="machine" value="<%= serviceData.service_machine_id %>">
+        <select id="machine" name="machine">
+          <% machineData.forEach(function(machineData) { 
+            
+            if(machineData.exist != false ) {%> 
+            <option value="<%=machineData.Mid %>"><%= machineData.machine %>  </option>
+            <% }}); %>
+        </select>
       </div>
       <div class="form-group">
         <label for="">Szczegóły/opis zadania</label>

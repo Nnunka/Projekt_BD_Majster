@@ -425,7 +425,7 @@ app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
   FROM machines WHERE machine_exist=true
   UNION ALL
   SELECT NULL AS user_id, NULL AS person_details, NULL AS machine_id, NULL AS machine_name, task_title
-  FROM tasks;`, function(error, results, fields) {
+  FROM tasks;`, function(error, results) {
     if (error) throw error;
     const realize = results.rows.map(row => ({
       Uid: row.user_id,
@@ -434,7 +434,6 @@ app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
       machine: row.machine_name,
       task: row.task_title
     }));
-    let index = 0;
     res.render("realizes/AddRealize", { realizeId:realizeId, realizeData:realize });
   });
 }) // obsługa żądania get, przejście na stronę - EditService
@@ -610,7 +609,15 @@ app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
     }
 
     const service = result.rows[0];
-    res.render('services/EditService', { serviceId: serviceId, serviceData: service });
+    pool.query('SELECT * FROM machines', function(error, results) {
+      if (error) throw error;
+    const machine = results.rows.map(row => ({
+      Mid: row.machine_id,
+      machine: row.machine_name,
+      exist: row.machine_exist
+    }));
+      res.render('services/EditService', { serviceId: serviceId, serviceData: service, machineData: machine });
+    });
   });
 }); // obsługa żądania get, przejście na stronę - EditService
 
