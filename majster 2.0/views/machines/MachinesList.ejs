@@ -17,11 +17,11 @@
         <th scope="col">Nazwa</th>
         <th scope="col">Rodzaj</th>
         <th scope="col">Status</th>
+        <th scope="col"></th>
         <% if (userRole === 'admin') { %>
         <th scope="col"></th>
         <th scope="col"></th>
         <% } %>
-        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -30,6 +30,9 @@
           <td><%= machine.name %></td>
           <td><%= machine.type %></td>
           <td><%= machine.status %></td>
+          <td>
+            <button class="btn btn-warning"><a href="/machines/ServiceMachine/<%= machine.id %>" class="text-decoration-none text-dark">Zgłoś serwis</a></button>
+          </td>
           <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/machines/EditMachine/<%= machine.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
@@ -38,9 +41,6 @@
             <button class="btn btn-danger"><a href="/machines/DeleteMachine/<%= machine.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
           <% } %>
-          <td>
-            <button class="btn btn-warning"><a href="/machines/ServiceMachine/<%= machine.id %>" class="text-decoration-none text-dark">Zgłoś serwis</a></button>
-          </td>
         </tr>
       <% }); %>
     </tbody>
