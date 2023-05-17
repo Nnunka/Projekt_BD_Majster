@@ -30,8 +30,8 @@
         <select id="machine" name="machine">
           <% realizeData.forEach(function(realizeData) { 
             
-            if(realizeData.Mid != null ) {%> 
-            <option value="<%=realizeData.Mid %>"><%= realizeData.machine %>  </option>
+            if(realizeData.MId != null ) {%> 
+            <option value="<%=realizeData.MId %>"><%= realizeData.machine %>  </option>
             <% }}); %>
         </select>
       </div>
@@ -40,8 +40,8 @@
         <select id="task" name="task">
           <% realizeData.forEach(function(realizeData) { 
             
-            if(realizeData.Tid != null ) {%> 
-            <option value="<%=realizeData.Tid %>"><%= realizeData.task %>  </option>
+            if(realizeData.TId != null ) {%> 
+            <option value="<%=realizeData.TId %>"><%= realizeData.task %>  </option>
             <% }}); %>
         </select>      </div>
       

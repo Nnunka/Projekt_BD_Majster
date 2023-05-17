@@ -700,7 +700,7 @@ app.get('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
   res.locals.moment = moment; // Trzeba zdefiniować, aby móc używać biblioteki moment do formatowania daty
 
   pool.query(
-    `SELECT u.user_id, CONCAT(u.user_name,' ', u.user_surname) AS person, m.machine_id, m.machine_name, t.task_title, t.task_id
+    `SELECT u.user_id, CONCAT(u.user_name,' ', u.user_surname) AS person, m.machine_id, m.machine_name AS machine, t.task_title, t.task_id
     FROM realize_tasks rt
     INNER JOIN users u ON rt.realize_user_id = u.user_id
     INNER JOIN machines m ON rt.realize_machine_id = m.machine_id
@@ -712,7 +712,7 @@ app.get('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
         Uid: row.user_id,
         person: row.person,
         MId: row.machine_id,
-        machine: row.machine_name,
+        machine: row.machine,
         TId: row.task_id,
         task: row.task_title
       }));
