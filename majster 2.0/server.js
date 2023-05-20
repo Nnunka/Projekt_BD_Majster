@@ -704,22 +704,40 @@ app.get('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
     FROM realize_tasks rt
     INNER JOIN users u ON rt.realize_user_id = u.user_id
     INNER JOIN machines m ON rt.realize_machine_id = m.machine_id
-    INNER JOIN tasks t ON rt.realize_task_id = t.task_id`,
-    function (error, results) {
+    INNER JOIN tasks t ON rt.realize_task_id = t.task_id
+    WHERE rt.realize_id = $1`, [realizeId], function(error, results) {
       if (error) throw error;
+      const realizeUser = results.rows.map((row) => ({
+        UidUSER: row.user_id,
+        personUSER: row.person,
+        MIdUSER: row.machine_id,
+        machineUSER: row.machine,
+        TIdUSER: row.task_id,
+        taskUSER: row.task_title
+      })); //pobierane dane TYLKO DLA ID WYŚWIETLAJĄCEGO SIĘ W URL
       
-      const realizeData = results.rows.map((row) => ({
-        Uid: row.user_id,
-        person: row.person,
-        MId: row.machine_id,
-        machine: row.machine,
-        TId: row.task_id,
-        task: row.task_title
-      }));
 
-      res.render('realizes/EditRealize', { realizeData: realizeData, realizeId: realizeId });
-    }
-  );
+      pool.query(`SELECT u.user_id, CONCAT(u.user_name,' ', u.user_surname) AS person, m.machine_id, m.machine_name AS machine, t.task_title, t.task_id
+      FROM realize_tasks rt
+      INNER JOIN users u ON rt.realize_user_id = u.user_id
+      INNER JOIN machines m ON rt.realize_machine_id = m.machine_id
+      INNER JOIN tasks t ON rt.realize_task_id = t.task_id`, function(error, results) {
+        if (error) throw error;
+        const AllRealizeData = results.rows.map((row) => ({
+          Uid: row.user_id,
+          person: row.person,
+          MId: row.machine_id,
+          machine: row.machine,
+          TId: row.task_id,
+          task: row.task_title
+        }));
+
+        console.log(realizeUser);
+        console.log(realizeId);
+        console.log(AllRealizeData);
+      res.render('realizes/EditRealize', {realizeId: realizeId, realizeUser: realizeUser, AllRealizeData: AllRealizeData });
+    });
+  });
 });
 
 

@@ -14,39 +14,35 @@
   </ul>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
-    <form action="/realizes/EditREalize/<%= realizeId %>" method="POST">
+    <form action="/realizes/EditRealize/<%= realizeId %>" method="POST">
       <div class="form-group">
         <label for="">Kto wykonuje</label>
         <select id="who_do" name="who_do">
-          <% realizeData.forEach(function(realizeData) { 
-            
-            if(realizeData.Uid != null ) {%> 
-            <option value="<%=realizeData.Uid %>"><%= realizeData.person %>  </option>
-            <% }}); %>
+          <% AllRealizeData.forEach((AllRealizeData) => { %>
+            <option value="<%= AllRealizeData.Uid %>" <%= AllRealizeData.Uid == realizeUser[0].UidUSER ? 'selected' : '' %>><%= AllRealizeData.person %></option>
+          <% }); %>
         </select>
       </div>
+
       <div class="form-group">
         <label for="">Jaka maszyna</label>
         <select id="machine" name="machine">
-          <% realizeData.forEach(function(realizeData) { 
-            
-            if(realizeData.MId != null ) {%> 
-            <option value="<%=realizeData.MId %>"><%= realizeData.machine %>  </option>
-            <% }}); %>
+          <% AllRealizeData.forEach((AllRealizeData) => { %>
+            <option value="<%= AllRealizeData.MId %>" <%= AllRealizeData.MId == realizeUser[0].MIdUSER ? 'selected' : '' %>><%= AllRealizeData.machine %></option>
+          <% }); %>
         </select>
-      </div>
+      </div> 
+
       <div class="form-group">
-        <label for="">Jakie zadanie</label>
+        <label for="">Jaka zadanie</label>
         <select id="task" name="task">
-          <% realizeData.forEach(function(realizeData) { 
-            
-            if(realizeData.TId != null ) {%> 
-            <option value="<%=realizeData.TId %>"><%= realizeData.task %>  </option>
-            <% }}); %>
-        </select>      </div>
-      
+          <% AllRealizeData.forEach((AllRealizeData) => { %>
+            <option value="<%= AllRealizeData.TId %>" <%= AllRealizeData.TId == realizeUser[0].TIdUSER ? 'selected' : '' %>><%= AllRealizeData.task %></option>
+          <% }); %>
+        </select>
+      </div> 
+
       <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
     </form>
   </div>
-
 </body>
