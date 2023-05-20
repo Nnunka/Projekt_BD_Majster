@@ -48,6 +48,10 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     res.render("users/Dashboard", {appuser: req.user.user_login, userRole: req.user.user_role}); 
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
+app.get("/worker/WorkerDashboard",checkNotAuthenticated, (req, res) =>{
+  res.render("users/Dashboard", {appuser: req.user.user_login, userRole: req.user.user_role}); 
+}); // po zalogowaniu wyświetla zadanie i maszyne aktualnie zalogowanego użytkownika -WorkerDashboard
+
 
 
 
