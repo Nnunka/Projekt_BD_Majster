@@ -658,8 +658,13 @@ app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
       res.sendStatus(404);
       return;
     }
-
     const alert = result.rows[0];
+
+  pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts WHERE alert_id = $1', [alertId], function(error, results) {
+    if (error) throw error;
+  const ONEidAlert = results.rows.map(row => ({
+    alert_who_add_id: row.alert_who_add_id,
+  })); //POBRANIE ID Z URL
 
     pool.query(`SELECT user_id, CONCAT(user_name,' ', user_surname) AS person_name FROM users`, function(error, results) {
       if (error) throw error;
@@ -668,8 +673,10 @@ app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
       person: row.person_name,
       exist: row.user_exist
     }));
-      res.render('alerts/EditAlert', { alertId: alertId, alertData: alert, userData: user });
+
+      res.render('alerts/EditAlert', { alertId: alertId, alertData: alert, userData: user, alertDataID: ONEidAlert });
     });
+  });
   });
 }); // obsługa żądania get, przejście na stronę - EditAlert
 

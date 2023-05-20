@@ -25,7 +25,8 @@
           <% userData.forEach(function(userData) { 
             
             if(userData.exist != false ) {%> 
-            <option value="<%=userData.Uid %>"><%= userData.person %>  </option>
+              <option value="<%= userData.Uid %>" <%= userData.Uid == alertDataID[0].alert_who_add_id ? 'selected' : '' %>><%= userData.person %></option>
+            
             <% }}); %>
             </select>
       </div>
