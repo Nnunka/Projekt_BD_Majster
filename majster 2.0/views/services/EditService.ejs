@@ -25,7 +25,7 @@
           <% machineData.forEach(function(machineData) { 
             
             if(machineData.exist != false ) {%> 
-            <option value="<%=machineData.Mid %>"><%= machineData.machine %>  </option>
+            <option value="<%= machineData.Mid %>" <%= machineData.Mid == machineDataID[0].service_machine_id ? 'selected' : '' %>><%= machineData.machine %></option>
             <% }}); %>
         </select>
       </div>

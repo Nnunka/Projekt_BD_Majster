@@ -609,6 +609,13 @@ app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
     }
 
     const service = result.rows[0];
+
+    pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services WHERE service_id = $1', [serviceId], function(error, results) {
+      if (error) throw error;
+    const ONEidService = results.rows.map(row => ({
+      service_machine_id: row.service_machine_id
+    })); // pobranie ID z url 
+
     pool.query('SELECT * FROM machines', function(error, results) {
       if (error) throw error;
     const machine = results.rows.map(row => ({
@@ -616,9 +623,10 @@ app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
       machine: row.machine_name,
       exist: row.machine_exist
     }));
-      res.render('services/EditService', { serviceId: serviceId, serviceData: service, machineData: machine });
+      res.render('services/EditService', { serviceId: serviceId, serviceData: service, machineData: machine, machineDataID: ONEidService });
     });
   });
+});
 }); // obsługa żądania get, przejście na stronę - EditService
 
 
