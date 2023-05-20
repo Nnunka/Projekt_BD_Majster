@@ -45,12 +45,26 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 }); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-    res.render("users/Dashboard", {appuser: req.user.user_login, userRole: req.user.user_role}); 
+  pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, t.task_title, t.task_details, rt.realize_id
+  FROM realize_tasks rt
+  INNER JOIN users u ON u.user_id = rt.realize_user_id
+  INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
+  INNER JOIN tasks t ON t.task_id = rt.realize_task_id
+  WHERE u.user_id=$1;`,[req.user.user_id], function(error, results, fields) {  // wstawić z sesji user id albo co kolwiek i będzie grać
+    if (error) throw error;
+    const realize = results.rows.map(row => ({
+      id: row.realize_id,
+      person: row.person_details,
+      machine: row.machine_name,
+      machine_s:row.machine_status,
+      task_d:row.task_details,
+      task: row.task_title
+    }));
+    let index = 0;
+    res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, appuser: req.user.user_login, });
+  }); 
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
-app.get("/worker/WorkerDashboard",checkNotAuthenticated, (req, res) =>{
-  res.render("users/Dashboard", {appuser: req.user.user_login, userRole: req.user.user_role}); 
-}); // po zalogowaniu wyświetla zadanie i maszyne aktualnie zalogowanego użytkownika -WorkerDashboard
 
 
 

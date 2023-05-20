@@ -18,13 +18,42 @@
   </header>
 
   <div class="col-md-12 text-center font-weight-bold mt-5">
-    <p>Zalogowano jako: <%= appuser%></p>
+    <p>Zalogowano jako: <%= realize.person%></p>
 
      <% if (userRole === 'admin') { %>
       <p>Rola: admin</p>
       <% } 
       else if (userRole === 'user') { %>
-        <p>Rola: pracownik</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Imię i Nazwisko</th>
+              <th scope="col">Nazwa maszyny</th>
+              <th scope="col">Nazwa zadania</th>
+              <% if (userRole === 'admin') { %>
+              <th scope="col"></th>
+              <th scope="col"></th>
+              <% } %>
+            </tr>
+          </thead>
+          <tbody>
+            <% realize.forEach(function(realize) { %>
+              <tr>
+                <td><%= realize.person %></td>
+                <td><%= realize.machine %></td>
+                <td><%= realize.task %></td>
+                <% if (userRole === 'admin') { %>
+                <td>
+                  <button class="btn btn-warning"><a href="/realizes/EditRealize/<%= realize.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+                </td>
+                <td>
+                  <button class="btn btn-danger"><a href="/realizes/DeleteRealize/<%= realize.id %>" class="text-decoration-none text-dark">Usuń</a></button>
+                </td>
+                <% } %>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
       <% } 
       else if (userRole === 'repairer') { %>
         <p>Rola: serwisant</p>
