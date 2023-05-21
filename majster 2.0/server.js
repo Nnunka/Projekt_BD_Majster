@@ -45,13 +45,12 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 }); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-  const PassId = req.user.user_id;
   pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, t.task_title, t.task_details, rt.realize_id
   FROM realize_tasks rt
   INNER JOIN users u ON u.user_id = rt.realize_user_id
   INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
   INNER JOIN tasks t ON t.task_id = rt.realize_task_id
-  WHERE u.user_id=$1;`,[PassId], function(error, results, fields) {  // wstawić z sesji user id albo co kolwiek i będzie grać
+  WHERE u.user_id=$1;`,[req.user.user_id], function(error, results, fields) {  // wstawić z sesji user id albo co kolwiek i będzie grać
     if (error) throw error;
     const realize = results.rows.map(row => ({
       id: row.realize_id,
