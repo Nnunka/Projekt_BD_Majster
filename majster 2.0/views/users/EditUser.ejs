@@ -42,6 +42,17 @@
             <option value="user">Użytkownik</option>
             <option value="repairer">Serwisant</option>
           </select>
+          <p class="text-secondary">
+            <% if (userData.user_role === 'admin') { %>
+              Obecna rola: Admin
+            <% } 
+            else if (userData.user_role === 'user') { %>
+              Obecna rola: Pracownik
+            <% } 
+            else if (userData.user_role === 'repairer') { %>
+              Obecna rola: Serwisant
+          <% } %>
+        </p>
       </div>
       <button type="submit" class="btn btn-warning">Edytuj użytkownik</button>
     </form>
