@@ -379,58 +379,47 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 });
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
-app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
-  res.render("alerts/AddAlert");
-}); // obsługa żądania get, przejście na stronę - AddAlert
+app.get("/alerts/AddAlert/:id", checkNotAuthenticated, (req, res) => {
+  const alertId = req.params.id;
+  const userId = req.user.user_id;
 
+  pool.query(`SELECT user_id, CONCAT(user_name,' ', user_surname) AS person_name FROM users WHERE user_id = $1`, [userId], function(error, results) {
+    if (error) throw error;
+    const alert = results.rows.map(row => ({
+      Uid: row.user_id,
+      person: row.person_name,
+      exist: row.user_exist
+    }));
+
+    res.render("alerts/AddAlert", { alertId: alertId, alertData: alert[0] });
+  });
+});
 
 // dodanie nowej zlecenia serwisowego do bazy poprzez formularz
-app.post('/alerts/AddAlert', async (req, res) => {
+app.post('/alerts/AddAlert/:id', async (req, res) => {
+  const alertId = req.params.id;
 
-  let { title, user, details, add_date} = req.body;
-  console.log({
-    title,
-    user,
-    details,
-    add_date,
-  })
-  let errors = [];
+  const { title, user, details, add_date } = req.body;
 
-  if (!title || !user || !details || !add_date) {
-    errors.push({ message: "Wypełnij wszystkie pola!" });
-  }
-  if (errors.length > 0) {
-    res.render("alerts/AddAlert", { errors });
-  } else {  
-    // spr czy dana zgłosznie jest już w bazie
-    pool.query(
-      `SELECT * FROM alerts 
-      WHERE alert_title = $1`, [title], (err, result) => {
-        if (err) {
-          throw err
-        }
-        console.log(result.rows);
-        if (result.rows.length > 0) {
-          errors.push({ message: "Taka zgłosznie jest już w bazie!" })
-          res.render("alerts/AddAlert", { errors });
-        } else {
-          // dodanie zgłoszenia do bazy
-          pool.query(
-            `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date)
-            VALUES ($1, $2, $3, $4)
-            RETURNING alert_id`, [title, user, details, add_date],
-            (err, results) => {
-              if (err) {
-                throw err;
-              }
-              console.log(results.rows);
-              console.log("nowa zgłoszenie w bazie") 
-              req.flash("success_msg", "Dodano nowe zgłoszenie");
-              res.redirect("/alerts/AlertsList");
-            })
-        }}
-    )}
+  // dodanie zgłoszenia do bazy
+  pool.query(
+    `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date)
+    VALUES ($1, $2, $3, $4)
+    RETURNING alert_id`,
+    [title, user, details, add_date],
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
+
+      console.log(results.rows);
+      console.log("nowe zgłoszenie w bazie");
+      req.flash("success_msg", "Dodano nowe zgłoszenie");
+      res.redirect("/alerts/AlertsList");
+    }
+  );
 });
+
 
 //////////////////////////////////DODANIE ZADANIA DO REALIZACJI/////////////////////////////////////////////////
 app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {

@@ -14,15 +14,16 @@
   </ul>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
-    <form action="/alerts/AddAlert" method="POST">
+    <form action="/alerts/AddAlert/<%= alertId %>" method="POST">
       <div class="form-group">
         <label for="">Podaj tytuł</label>
         <input type="text" class="form-control" id="title" name="title" placeholder="Tytuł" required>
       </div>
       <div class="form-group">
         <label for="">Kto zgłasza</label>
-        <input type="number" class="form-control" id="user" name="user" placeholder="numer zgłaszającego" required>
-      </div>
+        <input type="text" class="form-control" id="user" name="user" value="<%= alertData.Uid %>" readonly>
+        <p class="text-secondary"><%= alertData.person %></p>
+      </div>      
       <div class="form-group">
         <label for="">Podaj opis</label>
         <input type="text" class="form-control" id="details" name="details" placeholder="Opis zgłoszenia" required>

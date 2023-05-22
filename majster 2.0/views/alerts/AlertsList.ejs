@@ -5,9 +5,15 @@
   <header>
     <%- include('../components/Navbar')%>
   </header>
+  
   <div class="ml-3 mt-3 mb-3">
-    <button class="btn btn-warning"><a href="/alerts/AddAlert" class="text-decoration-none text-dark">Dodaj nowe zagłoszenie</a></button>
+    <button class="btn btn-warning">
+      <a href="/alerts/AddAlert/<%= alerts[0].id %>" class="text-decoration-none text-dark">
+        Dodaj nowe zgłoszenie
+      </a>
+    </button>
   </div>
+  
   
   <table class="table">
     <thead>
