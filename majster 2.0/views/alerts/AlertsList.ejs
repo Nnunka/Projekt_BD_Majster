@@ -20,6 +20,8 @@
         <th scope="col">Data dodania</th>
         <% if (userRole === 'admin' || userRole === 'repairer') { %>
         <th scope="col"></th>
+        <% } %>
+        <% if (userRole === 'admin') { %>
         <th scope="col"></th>
         <% } %>
       </tr>
@@ -35,11 +37,11 @@
           <td>
             <button class="btn btn-warning"><a href="/alerts/EditAlert/<%= alert.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
+          <% } %>
           <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-danger"><a href="/alerts/DeleteAlert/<%= alert.id %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
-          <% } %>
           <% } %>
         </tr>
       <% }); %>

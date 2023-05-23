@@ -462,7 +462,7 @@ app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
         throw err;
       }
       pool.query(
-        `UPDATE machines SET machine_status = 'W urzyciu'
+        `UPDATE machines SET machine_status = 'W użyciu'
         WHERE machine_id = $1::bigint;`,[machine],
          (err, results) => {
           if (err) {
@@ -871,9 +871,9 @@ app.get('/services/DeleteService/:id', checkAuthenticated, (req, res) => {
       }
 
       res.redirect('/services/ServicesList');
-    }
-  );
-});
+    });
+  });
+
 
 ////////////////////////////////////////USUWANIE ZGŁOSZEŃ///////////////////////////////////////////
 app.get('/alerts/DeleteAlert/:id', checkAuthenticated, (req, res) => {
