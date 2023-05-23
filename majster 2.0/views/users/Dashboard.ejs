@@ -15,13 +15,13 @@
   </header>
 
   <div class="col-md-12 text-center font-weight-bold mt-5">
-
-      <p>Zalogowany jako: <%= realize[0].person %></p>
+      <p>Zalogowany jako: <%= user_name %> <%= user_surname %></p>
 
      <% if (userRole === 'admin') { %>
       <p>Rola: admin</p>
       <% } 
       else if (userRole === 'user') { %>
+        <p>Rola: pracownik</p>
         <table class="table">
           <thead>
             <tr>

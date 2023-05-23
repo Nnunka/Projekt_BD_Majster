@@ -61,7 +61,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
       task: row.task_title
     }));
     let index = 0;
-    res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, appuser: req.user.user_login, });
+    res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
   }); 
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
