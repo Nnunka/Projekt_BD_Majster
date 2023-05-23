@@ -46,7 +46,7 @@
           </td>
           <% if (userRole === 'admin') { %>
           <td>
-            <button class="btn btn-danger"><a href="/services/DeleteService/<%= service.id %>" class="text-decoration-none text-dark">Usuń</a></button>
+            <button class="btn btn-danger"><a href="/services/DeleteService/<%= service.id %>/<%= service.machine_ID_RLY %>" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
           <% } %>
           <% } %>

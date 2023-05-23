@@ -120,7 +120,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT s.service_id, s.service_title, m.machine_name, s.service_details, s.service_start_date, s.service_end_date 
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date 
   FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id
   ORDER BY s.service_id;`, function(error, results, fields) {
     if (error) throw error;
@@ -128,6 +128,7 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
       id: row.service_id,
       title: row.service_title,
       machine_id: row.machine_name,
+      machine_ID_RLY: row.machine_id,
       details: row.service_details,
       start_date: row.service_start_date,
       end_date: row.service_end_date
@@ -857,8 +858,19 @@ app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
 });
 
 ////////////////////////////////////////USUWANIE SERWISOWANIA///////////////////////////////////////////
-app.get('/services/DeleteService/:id', checkAuthenticated, (req, res) => {
+app.get('/services/DeleteService/:id/:Mid', checkAuthenticated, (req, res) => {
   const serviceId = req.params.id;
+  const machineId = req.params.Mid;
+
+  pool.query(
+    'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
+    [machineId, 'Sprawna'],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
 
   pool.query(
     'DELETE FROM services WHERE service_id = $1',
@@ -870,9 +882,12 @@ app.get('/services/DeleteService/:id', checkAuthenticated, (req, res) => {
         return;
       }
 
+
+
       res.redirect('/services/ServicesList');
     });
   });
+});
 
 
 ////////////////////////////////////////USUWANIE ZGŁOSZEŃ///////////////////////////////////////////
