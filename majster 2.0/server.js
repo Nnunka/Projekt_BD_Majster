@@ -379,27 +379,15 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 });
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
-app.get("/alerts/AddAlert/:id", checkNotAuthenticated, (req, res) => {
+app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
   const alertId = req.params.id;
-  const userId = req.user.user_id;
-
-  pool.query(`SELECT user_id, CONCAT(user_name,' ', user_surname) AS person_name FROM users WHERE user_id = $1`, [userId], function(error, results) {
-    if (error) throw error;
-    const alert = results.rows.map(row => ({
-      Uid: row.user_id,
-      person: row.person_name,
-      exist: row.user_exist
-    }));
-
-    res.render("alerts/AddAlert", { alertId: alertId, alertData: alert[0] });
-  });
+    res.render("alerts/AddAlert", { alertId: alertId });
 });
 
 // dodanie nowej zlecenia serwisowego do bazy poprzez formularz
-app.post('/alerts/AddAlert/:id', async (req, res) => {
-  const alertId = req.params.id;
-
-  const { title, user, details, add_date } = req.body;
+app.post('/alerts/AddAlert', async (req, res) => {
+  const user= req.user.user_id;
+  const { title, details, add_date } = req.body;
 
   // dodanie zgłoszenia do bazy
   pool.query(
