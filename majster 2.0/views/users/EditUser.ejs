@@ -17,27 +17,27 @@
     <form action="/users/EditUser/<%= userId %>" method="POST">
       <div class="form-group">
         <label for="">Imie</label>
-        <input type="text" class="form-control" id="name" name="name" value="<%= userData.user_name %>">
+        <input type="text" class="form-control" id="name" name="name" value="<%= userData.user_name %>" required>
       </div>
       <div class="form-group">
         <label for="">Nazwisko</label>
-        <input type="text" class="form-control" id="surname" name="surname" value="<%= userData.user_surname %>">
+        <input type="text" class="form-control" id="surname" name="surname" value="<%= userData.user_surname %>" required>
       </div>
       <div class="form-group">
         <label for="">Email</label>
-        <input type="email" class="form-control" id="email" name="email" value="<%= userData.user_email %>">
+        <input type="email" class="form-control" id="email" name="email" value="<%= userData.user_email %>" required>
       </div>
       <div class="form-group">
         <label for="">Login</label>
-        <input type="text" class="form-control" id="login" name="login" value="<%= userData.user_login %>">
+        <input type="text" class="form-control" id="login" name="login" value="<%= userData.user_login %>" required>
       </div>
       <div class="form-group">
         <label for="">Hasło</label>
-        <input type="text" class="form-control" id="password" name="password" value="<%= userData.user_password %>">
+        <input type="text" class="form-control" id="password" name="password" value="<%= userData.user_password %>" required>
       </div>
       <div class="form-group">
         <label for="">Rola</label>
-        <select multiple class="form-control" id="role" name="role" value="<%= userData.user_role %>">
+        <select multiple class="form-control" id="role" name="role" value="<%= userData.user_role %>" required>
             <option value="admin">Admin</option>
             <option value="user">Użytkownik</option>
             <option value="repairer">Serwisant</option>

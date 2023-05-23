@@ -17,7 +17,7 @@
     <form action="/realizes/EditRealize/<%= realizeId %>" method="POST">
       <div class="form-group">
         <label for="">Kto wykonuje</label>
-        <select class="form-control" id="who_do" name="who_do">
+        <select class="form-control" id="who_do" name="who_do" required>
           <% AllRealizeData.forEach((AllRealizeData) => { %>
             <option value="<%= AllRealizeData.Uid %>" <%= AllRealizeData.Uid == realizeUser[0].UidUSER ? 'selected' : '' %>><%= AllRealizeData.person %></option>
           <% }); %>
@@ -26,7 +26,7 @@
 
       <div class="form-group">
         <label for="">Jaka maszyna</label>
-        <select class="form-control" id="machine" name="machine">
+        <select class="form-control" id="machine" name="machine" required>
           <% AllRealizeData.forEach((AllRealizeData) => { %>
             <option value="<%= AllRealizeData.MId %>" <%= AllRealizeData.MId == realizeUser[0].MIdUSER ? 'selected' : '' %>><%= AllRealizeData.machine %></option>
           <% }); %>
@@ -35,7 +35,7 @@
 
       <div class="form-group">
         <label for="">Jakie zadanie</label>
-        <select class="form-control" id="task" name="task">
+        <select class="form-control" id="task" name="task" required>
           <% AllRealizeData.forEach((AllRealizeData) => { %>
             <option value="<%= AllRealizeData.TId %>" <%= AllRealizeData.TId == realizeUser[0].TIdUSER ? 'selected' : '' %>><%= AllRealizeData.task %></option>
           <% }); %>

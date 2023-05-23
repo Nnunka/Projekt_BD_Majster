@@ -17,25 +17,25 @@
     <form action="/tasks/EditTask/<%= taskId %>" method="POST">
       <div class="form-group">
         <label for="">Nazwa zadania</label>
-        <input type="text" class="form-control" id="title" name="title" value="<%= taskData.task_title %>">
+        <input type="text" class="form-control" id="title" name="title" value="<%= taskData.task_title %>" required>
       </div>
       <div class="form-group">
         <label for="">Szczegóły/opis zadania</label>
-        <input type="text" class="form-control" id="details" name="details" value="<%= taskData.task_details %>">
+        <input type="text" class="form-control" id="details" name="details" value="<%= taskData.task_details %>" required>
       </div>
       <div class="form-group">
         <label for="">Data dodania</label>
-        <input type="date" class="form-control" id="add_date" name="add_date" value="<%= taskData.task_add_date %>">
+        <input type="date" class="form-control" id="add_date" name="add_date" value="<%= taskData.task_add_date %>" required>
         <p class="text-secondary">Obecna data: <%= moment(taskData.task_add_date).format('DD-MM-YYYY')%></p>
       </div>
       <div class="form-group">
         <label for="">Data rozpoczęcia</label>
-        <input type="date" class="form-control" id="start_date" name="start_date" value="<%= taskData.task_start_date %>">
+        <input type="date" class="form-control" id="start_date" name="start_date" value="<%= taskData.task_start_date %>" required>
         <p class="text-secondary">Obecna data: <%= moment(taskData.task_add_date).format('DD-MM-YYYY')%></p>
       </div>
       <div class="form-group">
         <label for="">Data zakończenia</label>
-        <input type="date" class="form-control" id="end_date" name="end_date" value="<%= taskData.task_end_date %>">
+        <input type="date" class="form-control" id="end_date" name="end_date" value="<%= taskData.task_end_date %>" required>
         <p class="text-secondary">Obecna data: <%= moment(taskData.task_end_date).format('DD-MM-YYYY')%></p>
       </div>
       <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
