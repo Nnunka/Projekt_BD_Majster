@@ -57,7 +57,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
       person: row.person_details,
       machine: row.machine_name,
       machine_s:row.machine_status,
-      task_d:row.task_details,
+      details:row.task_details,
       task: row.task_title
     }));
     let index = 0;
@@ -381,7 +381,7 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
 app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
   const alertId = req.params.id;
-    res.render("alerts/AddAlert", { alertId: alertId });
+    res.render("alerts/AddAlert", { alertId: alertId, userRole: req.user.user_role });
 });
 
 // dodanie nowej zlecenia serwisowego do bazy poprzez formularz

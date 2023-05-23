@@ -3,7 +3,15 @@
 <body>
 
   <header>
-    <%- include('../components/Navbar')%>
+    <% if (userRole === 'admin') { %>
+        <%- include('../components/Navbar')%>
+      <% } 
+      else if (userRole === 'user') { %>
+        <%- include('../components/WorkerNavbar')%>
+      <% } 
+      else if (userRole === 'repairer') { %>
+        <%- include('../components/Navbar')%>
+    <% } %>
   </header>
 
   <ul>
