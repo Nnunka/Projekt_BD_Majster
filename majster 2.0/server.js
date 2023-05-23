@@ -415,7 +415,7 @@ app.post('/alerts/AddAlert', async (req, res) => {
       console.log(results.rows);
       console.log("nowe zgłoszenie w bazie");
       req.flash("success_msg", "Dodano nowe zgłoszenie");
-      res.redirect("/users/Dashboard");
+      res.redirect("/users/AlertsList");
     }
   );
 });
@@ -948,7 +948,7 @@ app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
                 res.sendStatus(500);
                 return;
               }
-              res.redirect('/realizes/RealizesList');
+              res.redirect('/users/Dashboard');
             });
         });
     });
