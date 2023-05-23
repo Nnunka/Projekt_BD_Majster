@@ -15,9 +15,8 @@
   </header>
 
   <div class="col-md-12 text-center font-weight-bold mt-5">
-    <% realize.forEach(function(realize) { %>
-      <p>Zalogowany jako: <%= realize.person %> </p>
-    <% }); %>
+
+      <p>Zalogowany jako: <%= realize[0].person %></p>
 
      <% if (userRole === 'admin') { %>
       <p>Rola: admin</p>
