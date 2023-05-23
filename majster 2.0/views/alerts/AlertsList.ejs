@@ -3,17 +3,13 @@
 <body>
 
   <header>
-    <%- include('../components/Navbar')%>
+    <% if (userRole === 'admin') { %>
+      <%- include('../components/Navbar')%>
+    <% } 
+    else if (userRole === 'repairer') { %>
+      <%- include('../components/SerwiceNavbar')%>
+  <% } %>
   </header>
-  
-  <div class="ml-3 mt-3 mb-3">
-    <button class="btn btn-warning">
-      <a href="/alerts/AddAlert" class="text-decoration-none text-dark">
-        Dodaj nowe zgłoszenie
-      </a>
-    </button>
-  </div>
-  
   
   <table class="table">
     <thead>
@@ -35,7 +31,7 @@
           <td><%= alert.who_add_id %></td>
           <td><%= alert.details %></td>
           <td><%= moment(alert.add_date).format('DD-MM-YYYY')%></td>
-          <% if (userRole === 'admin' || userRole === 'repairer') { %>
+          <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/alerts/EditAlert/<%= alert.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>

@@ -3,7 +3,12 @@
 <body>
 
   <header>
-    <%- include('../components/Navbar')%>
+    <% if (userRole === 'admin') { %>
+      <%- include('../components/Navbar')%>
+    <% } 
+    else if (userRole === 'repairer') { %>
+      <%- include('../components/SerwiceNavbar')%>
+  <% } %>
   </header>
   <% if (userRole === 'admin') { %>
   <div class="ml-3 mt-3 mb-3">
@@ -30,10 +35,10 @@
           <td><%= machine.name %></td>
           <td><%= machine.type %></td>
           <td><%= machine.status %></td>
+          <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/machines/ServiceMachine/<%= machine.id %>" class="text-decoration-none text-dark">Zgłoś serwis</a></button>
           </td>
-          <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/machines/EditMachine/<%= machine.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>

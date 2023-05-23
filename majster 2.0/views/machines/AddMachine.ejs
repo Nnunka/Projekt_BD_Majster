@@ -25,7 +25,11 @@
       </div>
       <div class="form-group">
         <label for="">Podaj status maszyny</label>
-        <input type="text" class="form-control" id="status" name="status" placeholder="Status maszyny" required>
+        <select class="form-control" id="status" name="status" >
+          <option value="Sprawna">Sprawna</option>
+          <option value="W urzyciu">W urzyciu</option>
+          <option value="Serwis">Serwis</option>
+          </select>
       </div>
       <button type="submit" class="btn btn-warning">Dodaj maszynę</button>
     </form>

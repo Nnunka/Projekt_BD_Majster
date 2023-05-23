@@ -4,14 +4,14 @@
 
   <header>
     <% if (userRole === 'admin') { %>
-        <%- include('../components/Navbar')%>
-      <% } 
-      else if (userRole === 'user') { %>
-        <%- include('../components/WorkerNavbar')%>
-      <% } 
-      else if (userRole === 'repairer') { %>
-        <%- include('../components/Navbar')%>
-    <% } %>
+      <%- include('../components/Navbar')%>
+    <% } 
+    else if (userRole === 'user') { %>
+      <%- include('../components/WorkerNavbar')%>
+    <% } 
+    else if (userRole === 'repairer') { %>
+      <%- include('../components/SerwiceNavbar')%>
+  <% } %>
   </header>
 
   <ul>
