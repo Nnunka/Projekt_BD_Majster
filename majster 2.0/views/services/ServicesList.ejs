@@ -20,6 +20,8 @@
         <th scope="col">Data zakończenia</th>
         <% if (userRole === 'admin' || userRole === 'repairer') { %>
         <th scope="col"></th>
+        <% } %>
+        <% if (userRole === 'admin') { %>
         <th scope="col"></th>
         <% } %>
       </tr>

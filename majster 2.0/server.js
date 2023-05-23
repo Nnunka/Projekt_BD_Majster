@@ -403,7 +403,7 @@ app.post('/alerts/AddAlert', async (req, res) => {
       console.log(results.rows);
       console.log("nowe zgłoszenie w bazie");
       req.flash("success_msg", "Dodano nowe zgłoszenie");
-      res.redirect("/users/Dashboard");
+      res.redirect("/alerts/AlertsList");
     }
   );
 });
@@ -618,7 +618,7 @@ app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
       machine: row.machine_name,
       exist: row.machine_exist
     }));
-      res.render('services/EditService', { serviceId: serviceId, serviceData: service, machineData: machine, machineDataID: ONEidService });
+      res.render('services/EditService', { serviceId: serviceId, serviceData: service, machineData: machine, machineDataID: ONEidService, userRole: req.user.user_role });
     });
   });
 });
