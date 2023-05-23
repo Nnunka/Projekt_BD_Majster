@@ -403,7 +403,7 @@ app.post('/alerts/AddAlert', async (req, res) => {
       console.log(results.rows);
       console.log("nowe zgłoszenie w bazie");
       req.flash("success_msg", "Dodano nowe zgłoszenie");
-      res.redirect("/alerts/AlertsList");
+      res.redirect("/users/Dashboard");
     }
   );
 });
