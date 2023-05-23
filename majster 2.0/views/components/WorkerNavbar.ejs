@@ -1,14 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand text-warning" href="/users/Dashboard">Majster</a>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <button class="btn btn-warning"><a href="/alerts/AddAlert" class="text-decoration-none text-dark">Zgłoś awarię</a></button>
-            </li>       
-      </ul>
+            <li>
+                <button class="btn btn-light"><a href="/alerts/AddAlert" class="text-decoration-none text-danger">Zgłoś awarię</a></button>
+            </li>     
+        </ul>
       
       <form class="form-inline my-2 my-lg-0" action="/Logout" method="POST">
             <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Wyloguj się</button>
       </form>
+      
     </div>
 </nav>

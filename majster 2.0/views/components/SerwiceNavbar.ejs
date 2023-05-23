@@ -1,22 +1,31 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand text-warning" href="/users/Dashboard">Majster</a>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <button class="btn btn-warning"><a href="/alerts/AddAlert" class="text-decoration-none text-dark">Zgłoś awarię</a></button>
+
         <ul class="navbar-nav mr-auto">
+
             <li class="nav-item">
-                <a class="nav-link" href="/machines/MachinesList">Maszyny</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/services/ServicesList">Serwis</a>
+                <button class="btn btn-light"><a href="/machines/MachinesList" class="text-decoration-none text-secondary">Maszyny</a></button>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="/alerts/AlertsList">Zgłoszenia</a>
+                <button class="btn btn-light"><a href="/services/ServicesList" class="text-decoration-none text-secondary">Serwis</a></button>
             </li>
+
+            <li class="nav-item">
+                <button class="btn btn-light"><a href="/alerts/AlertsList" class="text-decoration-none text-secondary">Zgłoszenia</a></button>
+            </li>
+
+            <li>
+                <button class="btn btn-light"><a href="/alerts/AddAlert" class="text-decoration-none text-danger">Zgłoś awarię</a></button>
+            </li>
+
       </ul>
       
       <form class="form-inline my-2 my-lg-0" action="/Logout" method="POST">
             <button class="btn btn-outline-warning my-2 my-sm-0" type="submit">Wyloguj się</button>
       </form>
+
     </div>
 </nav>
