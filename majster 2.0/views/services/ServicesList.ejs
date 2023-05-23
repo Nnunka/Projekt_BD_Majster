@@ -33,7 +33,13 @@
           <td><%= service.machine_id %></td>
           <td><%= service.details %></td>
           <td><%= moment(service.start_date).format('DD-MM-YYYY')%></td>
-          <td><%= moment(service.end_date).format('DD-MM-YYYY') %></td>
+          <td>
+            <% if (moment(service.end_date).format('DD-MM-YYYY') === moment(00-00-0000).format('DD-MM-YYYY')) { %>
+              <p>W trakcie</p>
+            <% } else { %>
+              <%= moment(service.end_date).format('DD-MM-YYYY') %>
+            <% } %>
+          </td>
           <% if (userRole === 'admin' || userRole === 'repairer') { %>
           <td>
             <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>

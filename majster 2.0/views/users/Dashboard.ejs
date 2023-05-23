@@ -16,11 +16,12 @@
 
   <div class="col-md-12 text-center font-weight-bold mt-5">
       <p>Zalogowany jako: <%= user_name %> <%= user_surname %></p>
-
+        
      <% if (userRole === 'admin') { %>
       <p>Rola: admin</p>
       <% } 
       else if (userRole === 'user') { %>
+        
         <p>Rola: pracownik</p>
         <table class="table">
           <thead>
@@ -28,6 +29,7 @@
               <th scope="col">Maszyna</th>
               <th scope="col">Nazwa zadania</th>
               <th scope="col">Detale zadania</th>
+              <th> </th>
             </tr>
           </thead>
           <tbody>
@@ -36,6 +38,8 @@
                 <td><%= realize.machine %></td>
                 <td><%= realize.task %></td>
                 <td><%= realize.details %></td>
+                <td><button class="btn btn-light"><a href="/realizes/EndRealize/<%= realize.TID %>/<%= realize.MID%>" class="text-decoration-none text-danger">Zakończ zadanie</a></button>
+                </td>
               </tr>
             <% }); %>
           </tbody>

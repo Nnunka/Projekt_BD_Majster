@@ -45,7 +45,7 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 }); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-  pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, t.task_title, t.task_details, rt.realize_id
+  pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, m.machine_id, t.task_id, t.task_title, t.task_details, rt.realize_id
   FROM realize_tasks rt
   INNER JOIN users u ON u.user_id = rt.realize_user_id
   INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
@@ -58,7 +58,9 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
       machine: row.machine_name,
       machine_s:row.machine_status,
       details:row.task_details,
-      task: row.task_title
+      task: row.task_title,
+      TID:row.task_id,
+      MID:row.machine_id
     }));
     let index = 0;
     res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
@@ -236,13 +238,13 @@ app.get("/tasks/AddTask", checkNotAuthenticated, (req, res) => {
 
 // dodanie nowego zadania do bazy poprzez formularz
 app.post('/tasks/AddTask', async (req, res) => {
-
-  let { title, details, add_date, start_date } = req.body;
+  const add_date = moment().format('YYYY-MM-DD');
+  const start_date = moment(000-00-00).format('YYYY-MM-DD');
+  const end_date = moment(000-00-00).format('YYYY-MM-DD');
+  let { title, details } = req.body;
   console.log({
     title,
-    details,
-    add_date,
-    start_date,
+    details
   })
   let errors = [];
 
@@ -266,9 +268,9 @@ app.post('/tasks/AddTask', async (req, res) => {
         } else {
           // dodanie zadania do bazy
           pool.query(
-            `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date)
-            VALUES ($1, $2, $3, $4)
-            RETURNING task_id`, [title, details, add_date, start_date],
+            `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING task_id`, [title, details, add_date, start_date, end_date ],
             (err, results) => {
               if (err) {
                 throw err;
@@ -359,8 +361,10 @@ app.get('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 
 app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
   const serviceId = req.params.id;
+  const start_date = moment().format('YYYY-MM-DD');
+  const end_date = moment(0000-00-00).format('YYYY-MM-DD');
 
-  const { title, machine, details, start_date, end_date } = req.body;
+  const { title, machine, details} = req.body;
  
   pool.query(
     `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
@@ -369,13 +373,20 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
       if (err) {
         throw err;
       }
+      pool.query(
+        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
+        [serviceId, 'Serwis'],
+         (err, results) => {
+          if (err) {
+            throw err;
+          }
       console.log(results.rows);
       console.log("nowa zlecenie serwisowe w bazie")
 
       req.flash("success_msg", "Dodano nowego zlecenie serwisowe");
       res.redirect("/machines/MachinesList");
     });
-
+  });
 });
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
@@ -387,7 +398,8 @@ app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
 // dodanie nowej zlecenia serwisowego do bazy poprzez formularz
 app.post('/alerts/AddAlert', async (req, res) => {
   const user= req.user.user_id;
-  const { title, details, add_date } = req.body;
+  const { title, details} = req.body;
+  const add_date = moment().format('YYYY-MM-DD');
 
   // dodanie zgłoszenia do bazy
   pool.query(
@@ -413,14 +425,17 @@ app.post('/alerts/AddAlert', async (req, res) => {
 app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
   const realizeId = req.params.id;
 
-  pool.query(`SELECT user_id,CONCAT(user_name,' ', user_surname) AS person_details , NULL AS machine_id, NULL AS machine_name, NULL AS task_title
-  FROM users WHERE user_exist=true
-  UNION ALL
-  SELECT NULL AS user_id, NULL AS person_details, machine_id, machine_name, NULL AS task_title
-  FROM machines WHERE machine_exist=true
-  UNION ALL
-  SELECT NULL AS user_id, NULL AS person_details, NULL AS machine_id, NULL AS machine_name, task_title
-  FROM tasks;`, function(error, results) {
+  pool.query(`SELECT u.user_id, CONCAT(u.user_name, ' ', u.user_surname) AS person_details, NULL AS machine_id, NULL AS machine_name, NULL AS task_title
+  FROM users u LEFT JOIN realize_tasks rt ON u.user_id = rt.realize_user_id
+  WHERE u.user_exist = true
+    AND u.user_role = 'user'
+    AND rt.realize_id IS NULL
+    UNION ALL
+    SELECT NULL AS user_id, NULL AS person_details, machine_id, machine_name, NULL AS task_title
+    FROM machines WHERE machine_exist=true AND machine_status='Sprawna'
+    UNION ALL
+    SELECT NULL AS user_id, NULL AS person_details, NULL AS machine_id, NULL AS machine_name, task_title
+    FROM tasks;`, function(error, results) {
     if (error) throw error;
     const realize = results.rows.map(row => ({
       Uid: row.user_id,
@@ -436,23 +451,35 @@ app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
 
 app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
   const realizeId = req.params.id;
-
+  const date = moment().format('YYYY-MM-DD'); // Format the date as YYYY-MM-DD
   const { who_do, machine} = req.body;
  
   pool.query(
     `INSERT INTO realize_tasks (realize_user_id, realize_machine_id,realize_task_id)
-     VALUES ( $1::bigint, $2::bigint , $3) RETURNING realize_id`,[who_do, machine, realizeId],
+     VALUES ( $1::bigint, $2::bigint , $3) RETURNING realize_id; `,[who_do, machine, realizeId],
      (err, results) => {
       if (err) {
         throw err;
       }
-      console.log(results.rows);
-      console.log("Zadanie zostało przydzielone")
-
+      pool.query(
+        `UPDATE machines SET machine_status = 'W urzyciu'
+        WHERE machine_id = $1::bigint;`,[machine],
+         (err, results) => {
+          if (err) {
+            throw err;
+          }}
+        );
+        pool.query(
+          `UPDATE tasks SET task_start_date = $1
+          WHERE task_id = $2::bigint;`,[date,realizeId],
+           (err, results) => {
+            if (err) {
+              throw err;
+            }}
+          );
       req.flash("success_msg", "Dodano realizacjie do bazy");
       res.redirect("/realizes/RealizesList");
     });
-
 });
 
 
@@ -885,6 +912,47 @@ app.get('/realizes/DeleteRealize/:id', checkAuthenticated, (req, res) => {
     }
   );
 });
+
+////////////////////////////////////////ZAKONCZENIE REALIZACJI///////////////////////////////////////////
+app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
+  const taskId = req.params.Tid;
+  const machineId = req.params.Mid;
+  const date = moment().format('YYYY-MM-DD'); // Format the date as YYYY-MM-DD
+
+  pool.query(
+    'UPDATE tasks SET task_end_date = $2 WHERE task_id = $1;',
+    [taskId, date],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+  
+      pool.query(
+        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
+        [machineId, 'Sprawna'],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+          }
+  
+          pool.query(
+            'DELETE FROM realize_tasks WHERE realize_task_id = $1;',
+            [taskId],
+            (err, result) => {
+              if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+              }
+              res.redirect('/realizes/RealizesList');
+            });
+        });
+    });
+  });
 
 
 // obsługa żądania post, wylogowanie
