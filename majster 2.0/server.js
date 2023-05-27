@@ -398,6 +398,7 @@ app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
 
 // dodanie nowej zlecenia serwisowego do bazy poprzez formularz
 app.post('/alerts/AddAlert', async (req, res) => {
+  const userRole = req.user.user_role;
   const user= req.user.user_id;
   const { title, details} = req.body;
   const add_date = moment().format('YYYY-MM-DD');
@@ -416,7 +417,9 @@ app.post('/alerts/AddAlert', async (req, res) => {
       console.log(results.rows);
       console.log("nowe zgłoszenie w bazie");
       req.flash("success_msg", "Dodano nowe zgłoszenie");
-      res.redirect("/users/AlertsList");
+
+      if (userRole === 'admin' || userRole === 'repairer') { res.redirect("/alerts/AlertsList"); }
+      if (userRole === 'user'){ res.redirect("/users/Dashboard"); }
     }
   );
 });
