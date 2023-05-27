@@ -71,7 +71,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     });
   } 
   else if (req.user.user_role=='repairer') {
-    pool.query(`SELECT machine_id, machine_name, machine_type, machine_status FROM machines WHERE machine_exist=true AND machine_statu='Serwis' ORDER BY machine_id`, function(error, results, fields) {
+    pool.query(`SELECT machine_id, machine_name, machine_type, machine_status FROM machines WHERE machine_exist=true AND machine_status='Serwis' ORDER BY machine_id`, function(error, results, fields) {
       if (error) throw error;
       const machines = results.rows.map(row => ({
         id: row.machine_id,
