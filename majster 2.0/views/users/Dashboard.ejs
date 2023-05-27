@@ -47,6 +47,24 @@
       <% } 
       else if (userRole === 'repairer') { %>
         <p>Rola: serwisant</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Nazwa</th>
+              <th scope="col">Rodzaj</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% machines.forEach(function(machine) { %>
+              <tr>
+                <td><%= machine.name %></td>
+                <td><%= machine.type %></td>
+                <td><%= machine.status %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
       <% } %>
   </div>
 

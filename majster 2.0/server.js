@@ -47,26 +47,46 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 }); // obsługa żądania get, przejście na stronę - AddUser
 
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
-  pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, m.machine_id, t.task_id, t.task_title, t.task_details, rt.realize_id
-  FROM realize_tasks rt
-  INNER JOIN users u ON u.user_id = rt.realize_user_id
-  INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
-  INNER JOIN tasks t ON t.task_id = rt.realize_task_id
-  WHERE u.user_id=$1;`,[req.user.user_id], function(error, results, fields) {  // wstawić z sesji user id albo co kolwiek i będzie grać
-    if (error) throw error;
-    const realize = results.rows.map(row => ({
-      id: row.realize_id,
-      person: row.person_details,
-      machine: row.machine_name,
-      machine_s:row.machine_status,
-      details:row.task_details,
-      task: row.task_title,
-      TID:row.task_id,
-      MID:row.machine_id
-    }));
-    let index = 0;
-    res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
-  }); 
+  if(req.user.user_role=='user')
+  {
+    pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, m.machine_id, t.task_id, t.task_title, t.task_details, rt.realize_id
+    FROM realize_tasks rt
+    INNER JOIN users u ON u.user_id = rt.realize_user_id
+    INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
+    INNER JOIN tasks t ON t.task_id = rt.realize_task_id
+    WHERE u.user_id=$1;`,[req.user.user_id], function(error, results, fields) {  // wstawić z sesji user id albo co kolwiek i będzie grać
+      if (error) throw error;
+      const realize = results.rows.map(row => ({
+        id: row.realize_id,
+        person: row.person_details,
+        machine: row.machine_name,
+        machine_s:row.machine_status,
+        details:row.task_details,
+        task: row.task_title,
+        TID:row.task_id,
+        MID:row.machine_id
+      }));
+      let index = 0;
+      res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
+    });
+  } 
+  else if (req.user.user_role=='repairer') {
+    pool.query(`SELECT machine_id, machine_name, machine_type, machine_status FROM machines WHERE machine_exist=true AND machine_statu='Serwis' ORDER BY machine_id`, function(error, results, fields) {
+      if (error) throw error;
+      const machines = results.rows.map(row => ({
+        id: row.machine_id,
+        name: row.machine_name,
+        type: row.machine_type,
+        status: row.machine_status,
+      }));
+      let index = 0;
+      res.render("users/Dashboard", { machines, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
+    });
+    
+  } 
+  else {
+    
+  }
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
 
