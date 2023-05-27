@@ -120,8 +120,8 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date 
-  FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist
+  FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id WHERE service_exist=true
   ORDER BY s.service_id;`, function(error, results, fields) {
     if (error) throw error;
     const services = results.rows.map(row => ({
@@ -876,7 +876,7 @@ app.get('/services/DeleteService/:id/:Mid', checkAuthenticated, (req, res) => {
       }
 
   pool.query(
-    'DELETE FROM services WHERE service_id = $1',
+    'UPDATE services SET service_exist=false WHERE service_id=$1',
     [serviceId],
     (err, result) => {
       if (err) {
