@@ -240,30 +240,33 @@ app.get("/tasks/AddTask", checkNotAuthenticated, (req, res) => {
   res.render("tasks/AddTask");
 }); // obsługa żądania get, przejście na stronę - AddTask
 
-
 // dodanie nowego zadania do bazy poprzez formularz
 app.post('/tasks/AddTask', async (req, res) => {
-
   const { title, details } = req.body;
 
-    // Pobierz obecną datę jako timestamp
-    const obecnaData = new Date();
+  const start_date = new Date(1970, 0, 1, 0, 0, 0);
+  const end_date = new Date(1970, 0, 1, 0, 0, 0);
   
-          // dodanie zadania do bazy
-          pool.query(
-            `INSERT INTO tasks (task_title, task_details, task_add_date)
-            VALUES ($1, $2, $3)
-            RETURNING task_id`, [title, details, obecnaData ],
-            (err, results) => {
-              if (err) {
-                throw err;
-              }
-              console.log(results.rows);
-              console.log("nowy zadanie w bazie") 
-              req.flash("success_msg", "Dodano nowe zadanie");
-              res.redirect("/tasks/TaskList");
-            }
-    )
+
+  // Pobierz obecną datę jako timestamp
+  const obecnaData = new Date();
+
+  // dodanie zadania do bazy
+  pool.query(
+    `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING task_id`,
+    [title, details, obecnaData, start_date, end_date],
+    (err, results) => {
+      if (err) {
+        throw err;
+      }
+      console.log(results.rows);
+      console.log("Nowe zadanie w bazie");
+      req.flash("success_msg", "Dodano nowe zadanie");
+      res.redirect("/tasks/TaskList");
+    }
+  );
 });
 
 //////////////////////////////////DODANIE NOWEJ MASZYNY/////////////////////////////////////////////////
@@ -343,14 +346,15 @@ app.get('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 
 app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
   const serviceId = req.params.id;
-  const start_date = moment().format('YYYY-MM-DD');
-  const end_date = moment(0000-00-00).format('YYYY-MM-DD');
 
   const { title, machine, details} = req.body;
- 
+
+  const end_date = new Date(1970, 0, 1, 0, 0, 0);
+  const obecnaData = new Date();
+
   pool.query(
     `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
-     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, serviceId, details, start_date, end_date],
+     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, serviceId, details, obecnaData, end_date],
      (err, results) => {
       if (err) {
         throw err;
@@ -382,14 +386,15 @@ app.post('/alerts/AddAlert', async (req, res) => {
   const userRole = req.user.user_role;
   const user= req.user.user_id;
   const { title, details} = req.body;
-  const add_date = moment().format('YYYY-MM-DD');
+
+  const obecnaData = new Date();
 
   // dodanie zgłoszenia do bazy
   pool.query(
     `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date)
     VALUES ($1, $2, $3, $4)
     RETURNING alert_id`,
-    [title, user, details, add_date],
+    [title, user, details, obecnaData],
     (err, results) => {
       if (err) {
         throw err;
