@@ -32,21 +32,24 @@
         <tr>
           <td><%= task.title %></td>
           <td><%= task.details %></td>
-          <td><%= moment(task.add_date).format('DD-MM-YYYY') %></td>
+          <td><%= moment(task.add_date).format('lll') %></td>
+
           <td>
-            <% if (moment(task.start_date).format('DD-MM-YYYY') === moment(00-00-0000).format('DD-MM-YYYY')) { %>
-              <p>W trakcie</p>
+            <% if (task.start_date === null) { %>
+              <p>---</p>
             <% } else { %>
-              <%= moment(task.start_date).format('DD-MM-YYYY') %>
+              <%= moment(task.start_date).format('lll') %>
             <% } %>
           </td>
+
           <td>
-            <% if (moment(task.end_date).format('DD-MM-YYYY') === moment(00-00-0000).format('DD-MM-YYYY')) { %>
-              <p>W trakcie</p>
+            <% if (task.end_date === null) { %>
+              <p>---</p>
             <% } else { %>
-              <%= moment(task.end_date).format('DD-MM-YYYY') %>
+              <%= moment(task.end_date).format('lll') %>
             <% } %>
           </td>
+
           <% if (userRole === 'admin') { %>
           <td>
             <button class="btn btn-warning"><a href="/realizes/AddRealize/<%= task.id %>" class="text-decoration-none text-dark">Przydziel zadanie</a></button>

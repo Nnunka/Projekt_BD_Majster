@@ -25,18 +25,24 @@
       </div>
       <div class="form-group">
         <label for="">Data dodania</label>
-        <input type="date" class="form-control" id="add_date" name="add_date" value="<%= taskData.task_add_date %>" required>
-        <p class="text-secondary">Obecna data: <%= moment(taskData.task_add_date).format('DD-MM-YYYY')%></p>
+        <input type="text" class="form-control" id="add_date" name="add_date" value="<%= moment(taskData.task_add_date).format('DD MM YYYY HH:mm') %>"required>
+
       </div>
       <div class="form-group">
         <label for="">Data rozpoczęcia</label>
-        <input type="date" class="form-control" id="start_date" name="start_date" value="<%= taskData.task_start_date %>" required>
-        <p class="text-secondary">Obecna data: <%= moment(taskData.task_add_date).format('DD-MM-YYYY')%></p>
+        <%if (taskData.task_start_date === null) { %>
+        <input type="text" class="form-control" id="start_date" name="start_date" value="">
+        <% } else { %>
+        <input type="text" class="form-control" id="start_date" name="start_date" value="<%= moment(taskData.task_start_date).format('DD MM YYYY HH:mm') %>">
+        <% } %>
       </div>
       <div class="form-group">
         <label for="">Data zakończenia</label>
-        <input type="date" class="form-control" id="end_date" name="end_date" value="<%= taskData.task_end_date %>" required>
-        <p class="text-secondary">Obecna data: <%= moment(taskData.task_end_date).format('DD-MM-YYYY')%></p>
+        <%if (taskData.task_end_date === null) { %>
+        <input type="text" class="form-control" id="end_date" name="end_date" value="">
+        <% } else { %>
+        <input type="text" class="form-control" id="end_date" name="end_date" value="<%= moment(taskData.task_end_date).format('DD MM YYYY HH:mm') %>">
+        <% } %>
       </div>
       <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
     </form>

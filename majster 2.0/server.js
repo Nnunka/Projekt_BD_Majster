@@ -4,7 +4,10 @@ const passport = require("passport");
 const flash = require("express-flash");
 const session = require("express-session");
 const path = require("path");
+
 const moment = require('moment'); //biblioteka moment to zmiany formatu daty
+require('moment/locale/pl'); 
+
 require("dotenv").config();
 
 const app = express();
@@ -30,7 +33,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash()); //przechowywanie i wyświetlanie informacji dla użytkowników w odpowiedzi na ich interakcje z serwerem
-
 
 app.get("/", (req, res)=>{
   res.render("Login");
@@ -116,7 +118,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
-    res.render("tasks/TaskList", { tasks, index, userRole: req.user.user_role });
+    res.render("tasks/TaskList", { tasks, index, userRole: req.user.user_role});
   });
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
@@ -241,39 +243,17 @@ app.get("/tasks/AddTask", checkNotAuthenticated, (req, res) => {
 
 // dodanie nowego zadania do bazy poprzez formularz
 app.post('/tasks/AddTask', async (req, res) => {
-  const add_date = moment().format('YYYY-MM-DD');
-  const start_date = moment(000-00-00).format('YYYY-MM-DD');
-  const end_date = moment(000-00-00).format('YYYY-MM-DD');
-  let { title, details } = req.body;
-  console.log({
-    title,
-    details
-  })
-  let errors = [];
 
-  if (!title || !details || !add_date || !start_date) {
-    errors.push({ message: "Wypełnij wszystkie pola!" });
-  }
-  if (errors.length > 0) {
-    res.render("tasks/AddTask", { errors });
-  } else {  
-    // spr czy dany tytuł zadania jest już w bazie
-    pool.query(
-      `SELECT * FROM tasks 
-      WHERE task_title = $1`, [title], (err, result) => {
-        if (err) {
-          throw err
-        }
-        console.log(result.rows);
-        if (result.rows.length > 0) {
-          errors.push({ message: "Takie zadanie jest już w bazie!" })
-          res.render("tasks/AddTask", { errors });
-        } else {
+  const { title, details } = req.body;
+
+    // Pobierz obecną datę jako timestamp
+    const obecnaData = new Date();
+  
           // dodanie zadania do bazy
           pool.query(
-            `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING task_id`, [title, details, add_date, start_date, end_date ],
+            `INSERT INTO tasks (task_title, task_details, task_add_date)
+            VALUES ($1, $2, $3)
+            RETURNING task_id`, [title, details, obecnaData ],
             (err, results) => {
               if (err) {
                 throw err;
@@ -282,9 +262,8 @@ app.post('/tasks/AddTask', async (req, res) => {
               console.log("nowy zadanie w bazie") 
               req.flash("success_msg", "Dodano nowe zadanie");
               res.redirect("/tasks/TaskList");
-            })
-        }}
-    )}
+            }
+    )
 });
 
 //////////////////////////////////DODANIE NOWEJ MASZYNY/////////////////////////////////////////////////
@@ -457,7 +436,7 @@ app.get('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
 
 app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
   const realizeId = req.params.id;
-  const date = moment().format('YYYY-MM-DD'); // Format the date as YYYY-MM-DD
+
   const { who_do, machine} = req.body;
  
   pool.query(
@@ -475,9 +454,12 @@ app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
             throw err;
           }}
         );
+
+        const obecnaData = new Date();
+
         pool.query(
           `UPDATE tasks SET task_start_date = $1
-          WHERE task_id = $2::bigint;`,[date,realizeId],
+          WHERE task_id = $2::bigint;`,[obecnaData,realizeId],
            (err, results) => {
             if (err) {
               throw err;
@@ -497,7 +479,8 @@ app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
   res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
 
-  pool.query('SELECT * FROM tasks WHERE task_id = $1', [taskId], (err, result) => {
+
+  pool.query(`SELECT * FROM tasks WHERE task_id=$1`, [taskId], (err, result) => {
     if (err) {
       console.error(err);
       res.sendStatus(500);
@@ -517,6 +500,7 @@ app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
 
 app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
+  res.locals.moment = moment;
 
   const { title, details, add_date, start_date, end_date } = req.body;
 
@@ -529,7 +513,7 @@ app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
         res.sendStatus(500);
         return;
       }
-
+      
       res.redirect('/tasks/TaskList');
     }
   );
@@ -937,11 +921,12 @@ app.get('/realizes/DeleteRealize/:id', checkAuthenticated, (req, res) => {
 app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
   const taskId = req.params.Tid;
   const machineId = req.params.Mid;
-  const date = moment().format('YYYY-MM-DD'); // Format the date as YYYY-MM-DD
+
+  const obecnaData = new Date();
 
   pool.query(
     'UPDATE tasks SET task_end_date = $2 WHERE task_id = $1;',
-    [taskId, date],
+    [taskId, obecnaData],
     (err, result) => {
       if (err) {
         console.error(err);
