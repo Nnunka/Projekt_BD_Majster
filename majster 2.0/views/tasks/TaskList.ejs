@@ -18,7 +18,8 @@
         <th scope="col">Nazwa zadania</th>
         <th scope="col">Szczegóły/opis zadania</th>
         <th scope="col">Data dodania</th>
-        <th scope="col">Data rozpoczęcia</th>
+        <th scope="col">Data przydzielenia zadania</th>
+        <th scopr="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
         <% if (userRole === 'admin') { %>
         <th scope="col"></th>
@@ -39,6 +40,14 @@
               <p>---</p>
             <% } else { %>
               <%= moment(task.start_date).format('lll') %>
+            <% } %>
+          </td>
+
+          <td>
+            <% if (moment(task.start_date_by_user).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
+              <p>---</p>
+            <% } else { %>
+              <%= moment(task.start_date_by_user).format('lll') %>
             <% } %>
           </td>
 

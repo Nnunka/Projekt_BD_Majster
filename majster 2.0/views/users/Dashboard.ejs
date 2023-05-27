@@ -29,7 +29,8 @@
               <th scope="col">Maszyna</th>
               <th scope="col">Nazwa zadania</th>
               <th scope="col">Detale zadania</th>
-              <th> </th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -38,6 +39,7 @@
                 <td><%= realize.machine %></td>
                 <td><%= realize.task %></td>
                 <td><%= realize.details %></td>
+                <td><button class="btn btn-success"><a href="/realizes/StartRealize/<%= realize.TID %>" class="text-decoration-none text-dark">Rozpocznij zadanie</a></button>
                 <td><button class="btn btn-danger"><a href="/realizes/EndRealize/<%= realize.TID %>/<%= realize.MID%>" class="text-decoration-none text-dark">Zakończ zadanie</a></button>
                 </td>
               </tr>

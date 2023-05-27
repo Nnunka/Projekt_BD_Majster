@@ -131,7 +131,8 @@ app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
 app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date, task_exist FROM tasks WHERE task_exist=true ORDER BY task_id', function(error, results, fields) {
+  pool.query(`SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date, task_exist, task_start_date_by_user
+  FROM tasks WHERE task_exist=true ORDER BY task_id`, function(error, results, fields) {
     if (error) throw error;
     const tasks = results.rows.map(row => ({
       id: row.task_id,
@@ -140,7 +141,8 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
       add_date: row.task_add_date,
       start_date: row.task_start_date,
       end_date: row.task_end_date,
-      task_exist: row.task_exist
+      task_exist: row.task_exist,
+      start_date_by_user: row.task_start_date_by_user
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -272,6 +274,7 @@ app.post('/tasks/AddTask', async (req, res) => {
 
   const start_date = new Date(1970, 0, 1, 0, 0, 0);
   const end_date = new Date(1970, 0, 1, 0, 0, 0);
+  const start_date_by_user = new Date(1970, 0, 1, 0, 0, 0);
   
 
   // Pobierz obecną datę jako timestamp
@@ -279,10 +282,10 @@ app.post('/tasks/AddTask', async (req, res) => {
 
   // dodanie zadania do bazy
   pool.query(
-    `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date)
-    VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date, task_start_date_by_user)
+    VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING task_id`,
-    [title, details, obecnaData, start_date, end_date],
+    [title, details, obecnaData, start_date, end_date, start_date_by_user],
     (err, results) => {
       if (err) {
         throw err;
@@ -946,6 +949,26 @@ app.get('/realizes/DeleteRealize/:id', checkAuthenticated, (req, res) => {
       res.redirect('/realizes/RealizesList');
     }
   );
+});
+
+////////////////////////////////////////ROZPOCZĘCIE REALIZACJI///////////////////////////////////////////
+app.get('/realizes/StartRealize/:Tid', checkAuthenticated, (req, res) => {
+  const taskId = req.params.Tid;
+
+  const obecnaData = new Date();
+
+  pool.query(
+    'UPDATE tasks SET task_start_date_by_user = $2 WHERE task_id = $1;',
+    [taskId, obecnaData],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/users/Dashboard');
+  });
 });
 
 ////////////////////////////////////////ZAKONCZENIE REALIZACJI///////////////////////////////////////////
