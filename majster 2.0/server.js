@@ -142,8 +142,8 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT a.alert_id, a.alert_title, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
-   FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id ORDER BY alert_id`, function(error, results, fields) {
+  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
+   FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id WHERE alert_exist=true ORDER BY alert_id`, function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
       id: row.alert_id,
@@ -900,7 +900,7 @@ app.get('/alerts/DeleteAlert/:id', checkAuthenticated, (req, res) => {
   const alertId = req.params.id;
 
   pool.query(
-    'DELETE FROM alerts WHERE alert_id = $1',
+    'UPDATE alerts SET alert_exist=false WHERE alert_id = $1',
     [alertId],
     (err, result) => {
       if (err) {
