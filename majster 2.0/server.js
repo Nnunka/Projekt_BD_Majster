@@ -103,7 +103,7 @@ app.get("/machines/MachinesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Maszyny wraz z wyświetleniem maszyn zawartych w bazie danych
 
 app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
-  pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date FROM tasks ORDER BY task_id', function(error, results, fields) {
+  pool.query('SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date, task_exist FROM tasks WHERE task_exist=true ORDER BY task_id', function(error, results, fields) {
     if (error) throw error;
     const tasks = results.rows.map(row => ({
       id: row.task_id,
@@ -111,7 +111,8 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
       details: row.task_details,
       add_date: row.task_add_date,
       start_date: row.task_start_date,
-      end_date: row.task_end_date
+      end_date: row.task_end_date,
+      task_exist: row.task_exist
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -131,7 +132,8 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
       machine_ID_RLY: row.machine_id,
       details: row.service_details,
       start_date: row.service_start_date,
-      end_date: row.service_end_date
+      end_date: row.service_end_date,
+      service_exist: row.service_exist
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -808,7 +810,7 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
 
   pool.query(
-    'DELETE FROM tasks WHERE task_id = $1',
+    'UPDATE tasks SET task_exist=false WHERE task_id=$1',
     [taskId],
     (err, result) => {
       if (err) {
@@ -846,7 +848,7 @@ app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
   const machineId = req.params.id;
 
   pool.query(
-    'UPDATE machines SET machine_exist=false  WHERE machine_id = $1',
+    'UPDATE machines SET machine_exist=false WHERE machine_id = $1',
     [machineId],
     (err, result) => {
       if (err) {
