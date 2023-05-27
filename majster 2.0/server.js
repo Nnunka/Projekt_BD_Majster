@@ -82,10 +82,16 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
       let index = 0;
       res.render("users/Dashboard", { machines, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
     });
-    
   } 
   else {
-    
+    pool.query(``, function(error, results, fields) {
+      if (error) throw error;
+      const machines = results.rows.map(row => ({
+        
+      }));
+      let index = 0;
+      res.render("users/Dashboard", { machines, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname })
+    });  
   }
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
