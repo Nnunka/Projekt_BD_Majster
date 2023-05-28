@@ -540,7 +540,6 @@ app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
 
 app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
-  res.locals.moment = moment;
 
   const { title, details, add_date, start_date, end_date } = req.body;
 
@@ -1048,7 +1047,7 @@ app.get('/service/EndService/:id/:Mid', checkAuthenticated, (req, res) => {
 
   pool.query(
     `UPDATE services SET service_end_date = $2, service_status=$3 WHERE service_id = $1;`,
-    [serviceId, obecnaData,'Wukonane'],
+    [serviceId, obecnaData,'Wykonane'],
     (err, result) => {
       if (err) {
         console.error(err);
