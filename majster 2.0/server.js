@@ -6,7 +6,9 @@ const session = require("express-session");
 const path = require("path");
 
 const moment = require('moment'); //biblioteka moment to zmiany formatu daty
-require('moment/locale/pl'); 
+const momentTimezone = require('moment-timezone'); //bibioteka do ustawienia domyślnej strefy czasowej 
+momentTimezone.tz.setDefault('Europe/Warsaw'); //ustawienie strefy czasowej 
+moment.locale('pl'); //żeby ładnie daty się wyświetlały 
 
 require("dotenv").config();
 
