@@ -71,7 +71,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     });
   } 
   else if (req.user.user_role=='repairer') {
-    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type FROM services s LEFT JOIN machines mc
+    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type, mc.machine_id FROM services s LEFT JOIN machines mc
     ON s.service_machine_id=mc.machine_id 
     WHERE service_exist=true AND service_status='W trakcie' AND service_user_id=$1`,[req.user.user_id], function(error, results, fields) {
       if (error) throw error;
@@ -81,6 +81,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         machine: row.machine_name,
         details: row.service_details,
         type:row.machine_type,
+        MID:row.machine_id
       }));
       let index = 0;
       res.render("users/Dashboard", { service, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
@@ -1036,6 +1037,36 @@ app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
   });
 });
 
+////////////////////////////////////////ZAKONCZENIE SERWISU///////////////////////////////////////////
+app.get('/service/EndService/:id/:Mid', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+  const machineId = req.params.Mid;
+
+  const obecnaData = new Date();
+
+  pool.query(
+    `UPDATE services SET service_end_date = $2, service_status=$3 WHERE service_id = $1;`,
+    [serviceId, obecnaData,'Wukonane'],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+  
+      pool.query(
+        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
+        [machineId, 'Sprawna'],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+            }
+          res.redirect('/users/Dashboard');
+        });
+    });
+  });
 
 
 
