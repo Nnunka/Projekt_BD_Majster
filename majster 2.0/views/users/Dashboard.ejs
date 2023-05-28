@@ -58,11 +58,11 @@
             </tr>
           </thead>
           <tbody>
-            <% machines.forEach(function(machine) { %>
+            <% service.forEach(function(machine) { %>
               <tr>
-                <td><%= machine.name %></td>
-                <td><%= machine.type %></td>
-                <td><%= machine.status %></td>
+                <td><%= service.name %></td>
+                <td><%= service.type %></td>
+                <td><%= service.status %></td>
               </tr>
             <% }); %>
           </tbody>

@@ -71,16 +71,19 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     });
   } 
   else if (req.user.user_role=='repairer') {
-    pool.query(`SELECT machine_id, machine_name, machine_type, machine_status FROM machines WHERE machine_exist=true AND machine_status='Serwis' ORDER BY machine_id`, function(error, results, fields) {
+    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type FROM services s LEFT JOIN machines mc
+    ON s.service_machine_id=mc.machine_id 
+    WHERE service_exist=true AND service_status='W trakcie' AND service_user_id=$1`,[req.user.user_id], function(error, results, fields) {
       if (error) throw error;
-      const machines = results.rows.map(row => ({
-        id: row.machine_id,
-        name: row.machine_name,
-        type: row.machine_type,
-        status: row.machine_status,
+      const service = results.rows.map(row => ({
+        id: row.service_id,
+        title: row.service_title,
+        machine: row.machine_name,
+        status: row.service_details,
+        type:machine_type,
       }));
       let index = 0;
-      res.render("users/Dashboard", { machines, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
+      res.render("users/Dashboard", { service, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
     });
   } 
   else {
