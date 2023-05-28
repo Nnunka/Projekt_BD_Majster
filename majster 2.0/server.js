@@ -79,8 +79,8 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         id: row.service_id,
         title: row.service_title,
         machine: row.machine_name,
-        status: row.service_details,
-        type:machine_type,
+        details: row.service_details,
+        type:row.machine_type,
       }));
       let index = 0;
       res.render("users/Dashboard", { service, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
@@ -1015,6 +1015,30 @@ app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
         });
     });
   });
+
+////////////////////////////////////////ROZPOCZĘCIE SERWISOWANIA///////////////////////////////////////////
+app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.Sid;
+
+  const obecnaData = new Date();
+
+  pool.query(
+    'UPDATE services SET service_user_id= $2 WHERE service_id = $1;',
+    [serviceId, req.user.user_id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/users/Dashboard');
+  });
+});
+
+
+
+
 
 
 // obsługa żądania post, wylogowanie

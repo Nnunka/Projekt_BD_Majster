@@ -52,17 +52,19 @@
         <table class="table">
           <thead>
             <tr>
-              <th scope="col">Nazwa</th>
-              <th scope="col">Rodzaj</th>
-              <th scope="col">Status</th>
+              <th scope="col">Tytuł serwisu </th>
+              <th scope="col">Nazwa maszyna</th>
+              <th scope="col">Detale serwisowe</th>
+              <th scope="col">Typ maszyny</th>
             </tr>
           </thead>
           <tbody>
-            <% service.forEach(function(machine) { %>
+            <% service.forEach(function(service) { %>
               <tr>
-                <td><%= service.name %></td>
+                <td><%= service.title %></td>
+                <td><%= service.machine %></td>
+                <td><%= service.details %></td>
                 <td><%= service.type %></td>
-                <td><%= service.status %></td>
               </tr>
             <% }); %>
           </tbody>
