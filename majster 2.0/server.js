@@ -212,6 +212,10 @@ app.get("/realizes/RealizesList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
+app.get("/History", checkNotAuthenticated, (req, res) => {
+  res.render("History");
+}); // obsługa żądania get, przejście na stronę - History
+
 
 
 //////////////////////////////////DODANIE NOWEGO UŻYTKOWNIKA/////////////////////////////////////////////////
