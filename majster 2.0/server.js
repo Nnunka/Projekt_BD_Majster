@@ -76,17 +76,22 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     });
   } 
   else if (req.user.user_role=='repairer') {
-    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type, mc.machine_id FROM services s LEFT JOIN machines mc
-    ON s.service_machine_id=mc.machine_id 
-    WHERE service_exist=true AND service_status='W trakcie' AND service_user_id=$1`,[req.user.user_id], function(error, results, fields) {
+    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type, mc.machine_id, a.alert_title, a.alert_details, a.alert_add_date 
+    FROM services s 
+    LEFT JOIN machines mc ON s.service_machine_id = mc.machine_id 
+    LEFT JOIN alerts a ON a.alert_machine_id = mc.machine_id 
+    WHERE s.service_exist = true AND s.service_status = 'W trakcie' AND s.service_user_id = $1;`,[req.user.user_id], function(error, results, fields) {
       if (error) throw error;
       const service = results.rows.map(row => ({
         id: row.service_id,
         title: row.service_title,
         machine: row.machine_name,
         details: row.service_details,
-        type:row.machine_type,
-        MID:row.machine_id
+        type: row.machine_type,
+        MID: row.machine_id,
+        alertTitle: row.alert_title,
+        alertDetails: row.alert_details,
+        alertData: row.alert_add_date
       }));
       let index = 0;
       res.render("users/Dashboard", { service, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
@@ -495,7 +500,7 @@ app.post('/alerts/AddAlert', async (req, res) => {
   // dodanie zgłoszenia do bazy
   pool.query(
     `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date, alert_machine_id)
-    VALUES($1, $2, $3, $4, (SELECT realize_machine_id FROM realize_tasks WHERE realize_user_id = $5))
+    VALUES ($1, $2, $3, $4, COALESCE((SELECT realize_machine_id FROM realize_tasks WHERE realize_user_id = $5), 0))
     RETURNING alert_id`,
     [title, user, details, obecnaData, user],
     (err, results) => {
