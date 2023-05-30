@@ -78,6 +78,26 @@
             <% }); %>
           </tbody>
         </table>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Nazwa</th>
+              <th scope="col">Kto zgłosił</th>
+              <th scope="col">Opis</th>
+              <th scope="col">Data dodania</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% alerts.forEach(function(alert) { %>
+              <tr>
+                <td><%= alert.title %></td>
+                <td><%= alert.who_add_id %></td>
+                <td><%= alert.details %></td>
+                <td><%= moment(alert.add_date).format('lll')%></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
       <%}%>
   </div>
 
