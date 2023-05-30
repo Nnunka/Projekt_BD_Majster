@@ -31,23 +31,6 @@
               <%= moment(service.end_date).format('lll') %>
             <% } %>
           </td>
-
-          <% if (userRole === 'repairer') { %>
-          <td>
-            <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
-          </td>
-          <td>
-            <button class="btn btn-danger"><a href="/services/StartService/<%= service.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
-          </td>
-          <% } %>
-          <% if (userRole === 'admin') { %>
-          <td>
-            <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
-          </td>
-          <td>
-            <button class="btn btn-danger"><a href="/services/DeleteService/<%= service.id %>/<%= service.machine_ID_RLY %>" class="text-decoration-none text-dark">Usuń</a></button>
-          </td>
-          <% } %>
         </tr>
       <% }); %>
     </tbody>
