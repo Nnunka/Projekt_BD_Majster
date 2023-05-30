@@ -212,10 +212,29 @@ app.get("/realizes/RealizesList", checkNotAuthenticated, (req, res) => {
   });
 }); //przejście na stronę Zgłoszenia wraz z wyświetleniem zgłoszeń zawartych w bazie danych
 
-app.get("/History", checkNotAuthenticated, (req, res) => {
-  res.render("History");
-}); // obsługa żądania get, przejście na stronę - History
 
+
+app.get("/tasks/TaskHistory", checkNotAuthenticated, (req, res) => {
+  pool.query(`SELECT task_id, task_title, task_details, task_add_date, task_start_date, task_end_date, task_exist, task_start_date_by_user,
+  TO_CHAR(ROUND(EXTRACT(EPOCH FROM (task_end_date - task_start_date_by_user)) / 3600.0, 2), 'FM00') || ':' || 
+  TO_CHAR(EXTRACT(MINUTE FROM (task_end_date - task_start_date_by_user)), 'FM00') AS czas_pracy
+  FROM tasks WHERE task_exist=false ORDER BY task_id DESC`, function(error, results, fields) {
+    if (error) throw error;
+    const tasksH = results.rows.map(row => ({
+      id: row.task_id,
+      title: row.task_title,
+      details: row.task_details,
+      add_date: row.task_add_date,
+      start_date: row.task_start_date,
+      end_date: row.task_end_date,
+      start_date_by_user: row.task_start_date_by_user,
+      czas_pracy: row.czas_pracy
+    }));
+    let index = 0;
+    res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
+    res.render("tasks/TaskHistory", { tasksH, index, userRole: req.user.user_role});
+  });
+}); // obsługa żądania get, przejście na stronę - AddUser
 
 
 //////////////////////////////////DODANIE NOWEGO UŻYTKOWNIKA/////////////////////////////////////////////////

@@ -6,20 +6,6 @@
     <%- include('../components/Navbar')%>
   </header>
   
-
-  <% if (userRole === 'admin') { %>
-
-  <div class="d-inline">
-    <button class="btn btn-warning ml-3 mt-3 mb-3"><a href="/tasks/AddTask" class="text-decoration-none text-dark">Dodaj nowe zadanie</a></button>
-  </div>
-
-    <div class="d-inline">
-      <button class="btn btn-warning ml-3 mt-3 mb-3"><a href="/tasks/TaskHistory" class="text-decoration-none text-dark">Historia zadań</a></button>
-    </div>
-
-  <% } %>
-
-
   <table class="table">
     <thead>
       <tr>
@@ -29,15 +15,11 @@
         <th scope="col">Data przydzielenia zadania</th>
         <th scopr="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
-        <% if (userRole === 'admin') { %>
-        <th scope="col"></th>
-        <th scope="col"></th>
-        <th scope="col"></th>
-        <% } %>
+        <th scope="col">Czas pracy</th>
       </tr>
     </thead>
     <tbody>
-      <% tasks.forEach(function(task) { %>
+      <% tasksH.forEach(function(task) { %>
         <tr>
           <td><%= task.title %></td>
           <td><%= task.details %></td>
@@ -66,18 +48,7 @@
               <%= moment(task.end_date).format('lll') %>
             <% } %>
           </td>
-
-          <% if (userRole === 'admin') { %>
-          <td>
-            <button class="btn btn-warning"><a href="/realizes/AddRealize/<%= task.id %>" class="text-decoration-none text-dark">Przydziel zadanie</a></button>
-          </td>
-          <td>
-            <button class="btn btn-warning"><a href="/tasks/EditTask/<%= task.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
-          </td>
-          <td>
-            <button class="btn btn-danger"><a href="/tasks/DeleteTask/<%= task.id %>" class="text-decoration-none text-dark">Usuń</a></button>
-          </td>
-          <% } %>
+          <td><%= task.czas_pracy %></td>
         </tr>
       <% }); %>
     </tbody>
