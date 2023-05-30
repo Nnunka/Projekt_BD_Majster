@@ -51,7 +51,8 @@ app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
   if(req.user.user_role=='user')
   {
-    pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, m.machine_id, t.task_id, t.task_title, t.task_details, rt.realize_id
+    pool.query(`SELECT  CONCAT(u.user_name,' ' , u.user_surname) AS person_details, m.machine_name, m.machine_status, m.machine_id, t.task_id, t.task_title, t.task_details, 
+    t.task_start_date_by_user, rt.realize_id
     FROM realize_tasks rt
     INNER JOIN users u ON u.user_id = rt.realize_user_id
     INNER JOIN machines m ON m.machine_id = rt.realize_machine_id
@@ -64,11 +65,13 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         machine: row.machine_name,
         machine_s:row.machine_status,
         details:row.task_details,
+        task_start_date_by_user: row.task_start_date_by_user,
         task: row.task_title,
         TID:row.task_id,
         MID:row.machine_id
       }));
       let index = 0;
+      res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
       res.render("users/Dashboard", { realize, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
     });
   } 
