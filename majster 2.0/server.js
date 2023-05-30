@@ -98,13 +98,21 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     });
   } 
   else {
-    pool.query(``, function(error, results, fields) {
+    const date = new Date(1970, 0, 1, 0, 0, 0);
+    pool.query(`SELECT task_id, task_title, task_details, task_start_date, task_exist, task_start_date_by_user
+    FROM tasks WHERE task_exist=true AND task_start_date_by_user !=$1 AND task_end_date=$1 ORDER BY task_id `,[date], function(error, results, fields) {
       if (error) throw error;
-      const machines = results.rows.map(row => ({
+      const admin = results.rows.map(row => ({
+        id: row.task_id,
+        title: row.task_title,
+        details: row.task_details,
+        start_date: row.task_start_date,
+        task_exist: row.task_exist,
+        start_date_by_user: row.task_start_date_by_user
         
       }));
       let index = 0;
-      res.render("users/Dashboard", { machines, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname })
+      res.render("users/Dashboard", { admin, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname })
     });  
   }
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard

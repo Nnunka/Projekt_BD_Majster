@@ -19,6 +19,48 @@
         
      <% if (userRole === 'admin') { %>
       <p>Rola: admin</p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Nazwa zadania</th>
+            <th scope="col">Szczegóły/opis zadania</th>
+            <th scope="col">Data dodania</th>
+            <th scope="col">Data przydzielenia zadania</th>
+            <th scopr="col">Data rozpoczęcia</th>
+            <th scope="col">Data zakończenia</th>
+            <% if (userRole === 'admin') { %>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% admin.forEach(function(admin) { %>
+            <tr>
+              <td><%= admin.title %></td>
+              <td><%= admin.details %></td>
+    
+              <td>
+                <% if (moment(admin.start_date).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
+                  <p>---</p>
+                <% } else { %>
+                  <%= moment(admin.start_date).format('lll') %>
+                <% } %>
+              </td>
+    
+              <td>
+                <% if (moment(admin.start_date_by_user).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
+                  <p>---</p>
+                <% } else { %>
+                  <%= moment(admin.start_date_by_user).format('lll') %>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
       <% } 
       else if (userRole === 'user') { %>
         
