@@ -3,21 +3,8 @@
 <body>
 
   <header>
-    <% if (userRole === 'admin') { %>
       <%- include('../components/Navbar')%>
-    <% } 
-    else if (userRole === 'repairer') { %>
-      <%- include('../components/SerwiceNavbar')%>
-  <% } %>
   </header>
-
-  <% if (userRole === 'admin') { %>
-
-      <div class="d-inline">
-        <button class="btn btn-warning ml-3 mt-3 mb-3"><a href="/services/ServiceHistory" class="text-decoration-none text-dark">Historia serwisów</a></button>
-      </div>
-  
-  <% } %>
 
   <table class="table">
     <thead>
@@ -27,16 +14,10 @@
         <th scope="col">Opis</th>
         <th scope="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
-        <% if (userRole === 'admin' || userRole === 'repairer') { %>
-        <th scope="col"></th>
-        <% } %>
-        <% if (userRole === 'admin') { %>
-        <th scope="col"></th>
-        <% } %>
       </tr>
     </thead>
     <tbody>
-      <% services.forEach(function(service) { %>
+      <% servicesH.forEach(function(service) { %>
         <tr>
           <td><%= service.title %></td>
           <td><%= service.machine_id %></td>
@@ -50,6 +31,23 @@
               <%= moment(service.end_date).format('lll') %>
             <% } %>
           </td>
+
+          <% if (userRole === 'repairer') { %>
+          <td>
+            <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+          </td>
+          <td>
+            <button class="btn btn-danger"><a href="/services/StartService/<%= service.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
+          </td>
+          <% } %>
+          <% if (userRole === 'admin') { %>
+          <td>
+            <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+          </td>
+          <td>
+            <button class="btn btn-danger"><a href="/services/DeleteService/<%= service.id %>/<%= service.machine_ID_RLY %>" class="text-decoration-none text-dark">Usuń</a></button>
+          </td>
+          <% } %>
         </tr>
       <% }); %>
     </tbody>

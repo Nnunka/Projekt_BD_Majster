@@ -8,8 +8,16 @@
     <% } 
     else if (userRole === 'repairer') { %>
       <%- include('../components/SerwiceNavbar')%>
-  <% } %>
+    <% } %>
   </header>
+
+  <% if (userRole === 'admin') { %>
+
+    <div class="d-inline">
+      <button class="btn btn-warning ml-3 mt-3 mb-3"><a href="/alerts/AlertHistory" class="text-decoration-none text-dark">Historia zgłoszeń awarii</a></button>
+    </div>
+
+  <% } %>
 
   <table class="table">
     <thead>
