@@ -494,10 +494,10 @@ app.post('/alerts/AddAlert', async (req, res) => {
 
   // dodanie zgłoszenia do bazy
   pool.query(
-    `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date)
-    VALUES ($1, $2, $3, $4)
+    `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date, alert_machine_id)
+    VALUES($1, $2, $3, $4, (SELECT realize_machine_id FROM realize_tasks WHERE realize_user_id = $5))
     RETURNING alert_id`,
-    [title, user, details, obecnaData],
+    [title, user, details, obecnaData, user],
     (err, results) => {
       if (err) {
         throw err;
