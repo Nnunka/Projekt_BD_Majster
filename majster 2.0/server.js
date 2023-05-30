@@ -100,23 +100,50 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
   } 
   else {
     const date = new Date(1970, 0, 1, 0, 0, 0);
-    pool.query(`SELECT task_id, task_title, task_details, task_start_date, task_exist, task_start_date_by_user
-    FROM tasks WHERE task_exist=true AND task_start_date_by_user !=$1 AND task_end_date=$1 ORDER BY task_id `,[date], function(error, results, fields) {
-      if (error) throw error;
-      const admin = results.rows.map(row => ({
-        id: row.task_id,
-        title: row.task_title,
-        details: row.task_details,
-        start_date: row.task_start_date,
-        task_exist: row.task_exist,
-        start_date_by_user: row.task_start_date_by_user
-        
-      }));
-      let index = 0;
-      res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
-      res.render("users/Dashboard", { admin, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname })
-    });  
-  }
+    pool.query(
+      `SELECT task_id, task_title, task_details, task_start_date, task_exist, task_start_date_by_user
+      FROM tasks WHERE task_exist=true AND task_start_date_by_user != $1 AND task_end_date=$1 ORDER BY task_id`,
+      [date],
+      function (error, results, fields) {
+        if (error) throw error;
+        const adminT = results.rows.map((row) => ({
+          id: row.task_id,
+          title: row.task_title,
+          details: row.task_details,
+          start_date: row.task_start_date,
+          task_exist: row.task_exist,
+          start_date_by_user: row.task_start_date_by_user,
+        }));
+  
+        pool.query(
+          `SELECT s.service_id, s.service_title, m.machine_name, s.service_details, s.service_start_date
+          FROM services s 
+          INNER JOIN machines m ON s.service_machine_id = m.machine_id 
+          WHERE s.service_exist=true AND s.service_status='W trakcie'
+          ORDER BY s.service_id;`,
+          function (error, results, fields) {
+            if (error) throw error;
+            const adminS = results.rows.map((row) => ({
+              id: row.service_id,
+              title: row.service_title,
+              machine_id: row.machine_name,
+              details: row.service_details,
+              start_date: row.service_start_date,
+            }));
+  
+            let index = 0;
+            res.locals.moment = moment; // trzeba zdefiniować, aby móc użyć biblioteki moment do formatu daty
+            res.render("users/Dashboard", {
+              adminT,
+              adminS,
+              index,
+              userRole: req.user.user_role,
+              user_name: req.user.user_name,
+              user_surname: req.user.user_surname,
+            });
+          });
+      });
+    }
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard
 
 
