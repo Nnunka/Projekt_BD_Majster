@@ -157,8 +157,10 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist
-  FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id WHERE service_exist=true
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist, s.service_status
+  FROM services s 
+  INNER JOIN machines m ON s.service_machine_id = m.machine_id 
+  WHERE service_exist=true
   ORDER BY s.service_id;`, function(error, results, fields) {
     if (error) throw error;
     const services = results.rows.map(row => ({
@@ -169,7 +171,8 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
       details: row.service_details,
       start_date: row.service_start_date,
       end_date: row.service_end_date,
-      service_exist: row.service_exist
+      service_exist: row.service_exist,
+      service_status: row.service_status
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -237,7 +240,7 @@ app.get("/tasks/TaskHistory", checkNotAuthenticated, (req, res) => {
 });
 
 app.get("/services/ServiceHistory", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist, s.service_status
   FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id WHERE service_exist=false
   ORDER BY s.service_id;`, function(error, results, fields) {
     if (error) throw error;
@@ -249,7 +252,8 @@ app.get("/services/ServiceHistory", checkNotAuthenticated, (req, res) => {
       details: row.service_details,
       start_date: row.service_start_date,
       end_date: row.service_end_date,
-      service_exist: row.service_exist
+      service_exist: row.service_exist,
+      service_status: row.service_status
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -1086,8 +1090,8 @@ app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
   const obecnaData = new Date();
 
   pool.query(
-    'UPDATE services SET service_user_id= $2 WHERE service_id = $1;',
-    [serviceId, req.user.user_id],
+    'UPDATE services SET service_user_id= $2, service_status = $3 WHERE service_id = $1;',
+    [serviceId, req.user.user_id, 'W trakcie'],
     (err, result) => {
       if (err) {
         console.error(err);
