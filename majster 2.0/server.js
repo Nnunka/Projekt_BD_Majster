@@ -94,6 +94,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         alertData: row.alert_add_date
       }));
       let index = 0;
+      res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
       res.render("users/Dashboard", { service, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
     });
   } 
@@ -112,6 +113,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         
       }));
       let index = 0;
+      res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
       res.render("users/Dashboard", { admin, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname })
     });  
   }
