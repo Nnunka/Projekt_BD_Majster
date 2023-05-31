@@ -6,12 +6,12 @@
     <%- include('../components/Navbar')%>
   </header>
 
-  <ul>
+  <div class="ml-3 mt-3 mb-3"><ul><b>
     <% if(typeof errors != 'undefined') { %> 
       <% errors.forEach(error=>{%>
         <li><%= error.message %></li> 
-   <% })  %> <% } %>
-  </ul>
+    <% })  %> <% } %>
+  </b></ul></div>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
     <form action="/users/AddUser" method="POST">

@@ -325,9 +325,7 @@ app.get("/alerts/AlertHistory", checkNotAuthenticated, (req, res) => {
 
 
 //////////////////////////////////DODANIE NOWEGO UŻYTKOWNIKA/////////////////////////////////////////////////
-//dodanie nowego użytkownika do bazy poprzez formularz
 app.post('/users/AddUser', async (req, res) => {
-
   let { name, surname, email, login, password, role } = req.body;
   console.log({
     name,
@@ -347,37 +345,45 @@ app.post('/users/AddUser', async (req, res) => {
   }
   if (errors.length > 0) {
     res.render("users/AddUser", { errors });
-  } else {  
-    //spr czy dany login jest w bazie
+  } else {
+    // Sprawdzenie czy dany login jest już w bazie
     pool.query(
-      `SELECT * FROM users 
-      WHERE user_login = $1`, [login], (err, result) => {
+      `SELECT * FROM users WHERE user_login = $1`, [login], (err, result) => {
         if (err) {
-          throw err
+          throw err;
         }
         console.log(result.rows);
         if (result.rows.length > 0) {
           errors.push({ message: "Taki login jest już w bazie!" })
           res.render("users/AddUser", { errors });
         } else {
-          // dodanie użytkownika do bazy
+          // Sprawdzenie czy dany email jest już w bazie
           pool.query(
-            `INSERT INTO users (user_name, user_surname, user_email, user_login, user_password, user_role)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING user_id, user_password`, [name, surname, email, login, password, role],
-            (err, results) => {
+            `SELECT * FROM users WHERE user_email = $1`, [email], (err, result) => {
               if (err) {
                 throw err;
               }
-              console.log(results.rows);
-              console.log("nowy uzytkownik w bazie") 
-              req.flash("success_msg", "Dodano nowego użytkownika");
-              res.redirect("/users/UsersList");
-            })
-        }}
-    )}
-});
-
+              console.log(result.rows);
+              if (result.rows.length > 0) {
+                errors.push({ message: "Taki email jest już w bazie!" })
+                res.render("users/AddUser", { errors });
+              } else {
+                // Jeśli wszystko git - Dodanie użytkownika do bazy
+                pool.query(
+                  `INSERT INTO users (user_name, user_surname, user_email, user_login, user_password, user_role)
+                  VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id, user_password`, [name, surname, email, login, password, role],
+                  (err, results) => {
+                    if (err) {
+                      throw err;
+                    }
+                    console.log(results.rows);
+                    console.log("Nowy użytkownik w bazie") 
+                    req.flash("success_msg", "Dodano nowego użytkownika");
+                    res.redirect("/users/UsersList");
+                });
+          }});
+    }});
+}});
 
 //////////////////////////////////DODANIE NOWEGO ZADANIA/////////////////////////////////////////////////
 app.get("/tasks/AddTask", checkNotAuthenticated, (req, res) => {
