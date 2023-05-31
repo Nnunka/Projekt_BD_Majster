@@ -684,37 +684,90 @@ app.get('/users/EditUser/:id', checkAuthenticated, (req, res) => {
       res.sendStatus(500);
       return;
     }
-
     if (result.rows.length === 0) {
       res.sendStatus(404);
       return;
     }
 
     const user = result.rows[0];
-    res.render('users/EditUser', { userId: userId, userData: user });
+    res.render('users/EditUser', { userId: userId, userData: user, errors: [] });
   });
-}); // obsługa żądania get, przejście na stronę - EditUser
-
+});
 
 app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
   const userId = req.params.id;
 
   const { name, surname, email, login, password, role } = req.body;
+  let errors = [];
 
-  pool.query(
-    'UPDATE users SET user_name = $1, user_surname = $2, user_email = $3, user_login = $4, user_password = $5, user_role = $6  WHERE user_id = $7',
-    [name, surname, email, login, password, role, userId],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }
+  if (!name || !surname || !email || !login || !password || !role) {
+    errors.push({ message: "Wypełnij wszystkie pola!" });
+  }
+  if (password.length < 4) {
+    errors.push({ message: "Hasło musi mieć przynajmniej 4 znaki!" });
+  }
 
-      res.redirect('/users/UsersList');
-    }
-  );
-});
+  if (errors.length > 0) {
+    const userData = { name, surname, email, login, password, role };
+    res.render("users/EditUser", { userId: userId, userData: userData, errors });
+  } else {
+    pool.query(
+      `SELECT * FROM users WHERE user_login = $1 AND user_id != $2`, //spr czy jest już taki login w bazie dla innych użytkowników niż ten którego edytujemy
+      [login, userId],
+      (err, result) => {
+        if (err) {
+          throw err;
+        }
+
+        if (result.rows.length > 0) {
+          errors.push({ message: "Taki login jest już w bazie!" });
+          const user = { 
+            user_name: name,
+            user_surname: surname,
+            user_email: email,
+            user_login: login,
+            user_password: password,
+            user_role: role
+          }; //potrzebujemy tego, aby po wyręderowaniu błędu na stronie związanego z złym uzupełnieniem formularza, nie znikły dane domyślne pobrane z bazy
+          res.render("users/EditUser", { userId: userId, userData: user, errors });
+        } else {
+          pool.query(
+            `SELECT * FROM users WHERE user_email = $1 AND user_id != $2`, //spr czy jest już taki email w bazie dla innych użytkowników niż ten którego edytujemy
+            [email, userId],
+            (err, result) => {
+              if (err) {
+                throw err;
+              }
+
+              if (result.rows.length > 0) {
+                errors.push({ message: "Taki email jest już w bazie!" });
+                const user = {
+                  user_name: name,
+                  user_surname: surname,
+                  user_email: email,
+                  user_login: login,
+                  user_password: password,
+                  user_role: role
+                }; //potrzebujemy tego, aby po wyręderowaniu błędu na stronie związanego z złym uzupełnieniem formularza, nie znikły dane domyślne pobrane z bazy
+                res.render("users/EditUser", { userId: userId, userData: user, errors });
+              } else {
+                pool.query(
+                  `UPDATE users SET user_name = $1, user_surname = $2, user_email = $3, user_login = $4, user_password = $5, user_role = $6  WHERE user_id = $7`,
+                  [name, surname, email, login, password, role, userId],
+                  (err, result) => {
+                    if (err) {
+                      console.error(err);
+                      res.sendStatus(500);
+                      return;
+                    }
+
+                    res.redirect('/users/UsersList');
+                });
+            }});
+      }});
+}});
+
+
 
 ////////////////////////////////////////EDYCJA MASZYNY///////////////////////////////////////////
 app.get('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {

@@ -6,17 +6,17 @@
     <%- include('../components/Navbar')%>
   </header>
 
-  <ul>
+  <div class="ml-3 mt-3 mb-3"><ul><b>
     <% if(typeof errors != 'undefined') { %> 
       <% errors.forEach(error=>{%>
         <li><%= error.message %></li> 
-   <% })  %> <% } %>
-  </ul>
+    <% })  %> <% } %>
+  </b></ul></div>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
     <form action="/users/EditUser/<%= userId %>" method="POST">
       <div class="form-group">
-        <label for="">Imie</label>
+        <label for="">Imię</label>
         <input type="text" class="form-control" id="name" name="name" value="<%= userData.user_name %>" required>
       </div>
       <div class="form-group">
@@ -37,23 +37,13 @@
       </div>
       <div class="form-group">
         <label for="">Rola</label>
-        <select multiple class="form-control" id="role" name="role" value="<%= userData.user_role %>" required>
-            <option value="admin">Admin</option>
-            <option value="user">Użytkownik</option>
-            <option value="repairer">Serwisant</option>
-          </select>
-          <p class="text-secondary">
-            <% if (userData.user_role === 'admin') { %>
-              Obecna rola: Admin
-            <% } 
-            else if (userData.user_role === 'user') { %>
-              Obecna rola: Pracownik
-            <% } 
-            else if (userData.user_role === 'repairer') { %>
-              Obecna rola: Serwisant
-          <% } %>
-        </p>
+        <select multiple class="form-control" id="role" name="role" required>
+          <option value="admin" <%= userData.user_role === 'admin' ? 'selected' : '' %>>Admin</option>
+          <option value="user" <%= userData.user_role === 'user' ? 'selected' : '' %>>Pracownik</option>
+          <option value="repairer" <%= userData.user_role === 'repairer' ? 'selected' : '' %>>Serwisant</option>
+        </select>
       </div>
+      
       <button type="submit" class="btn btn-warning">Edytuj użytkownik</button>
     </form>
   </div>
