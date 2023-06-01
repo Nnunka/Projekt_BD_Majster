@@ -29,10 +29,12 @@
         <th scope="col">Status serwisu</th>
         <th scope="col">Wykonywany przez</th>
         <th scope="col">Data zakończenia</th>
-        <% if (userRole === 'admin' || userRole === 'repairer') { %>
+        <% if (userRole === 'repairer') { %>
+        <th scope="col"></th>
         <th scope="col"></th>
         <% } %>
         <% if (userRole === 'admin') { %>
+        <th scope="col"></th>
         <th scope="col"></th>
         <% } %>
       </tr>
@@ -67,12 +69,19 @@
           </td>
 
           <% if (userRole === 'repairer') { %>
-          <td>
-            <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
-          </td>
-          <td>
-            <button class="btn btn-danger"><a href="/services/StartService/<%= service.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
-          </td>
+
+            <% if (service.service_status === 'W trakcie') { %>
+              <td></td>
+              <td></td>
+            <% } else { %>
+              <td>
+                <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+              </td>
+              <td>
+                <button class="btn btn-danger"><a href="/services/StartService/<%= service.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
+              </td>
+            <% } %>
+
           <% } %>
           <% if (userRole === 'admin') { %>
           <td>
