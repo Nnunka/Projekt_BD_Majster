@@ -15,6 +15,7 @@
         <th scope="col">Data dodania serwisu</th>
         <th scope="col">Status serwisu</th>
         <th scope="col">Data zakończenia</th>
+        <th scope="col">Wykonany przez</th>
       </tr>
     </thead>
     <tbody>
@@ -32,9 +33,26 @@
               <%= moment(service.end_date).format('lll') %>
             <% } %>
           </td>
+          <td>
+            <% if (service.service_user_id === 0) { %> <!-- Sprawdzamy, czy service_user_id równa się 0 -->
+              <p>---</p>
+            <% } else {
+              const user = userH.find(user => user.user_id === service.service_user_id); <!--Przeszukujemy tablicę users w poszukiwaniu użytkownika o pasującym service_user_id-->
+              if (user) { %> <!-- Jeśli znaleziono dopasowanie -->
+                <%= user.person %> <!-- Wyświetlamy imię i nazwisko użytkownika -->
+              <% } else { %>
+                <p>---</p>
+              <% }
+            } %>
+          </td>
         </tr>
       <% }); %>
+      
+      
+    
+    
     </tbody>
+    
   </table>
 
 </body>

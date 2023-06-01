@@ -281,8 +281,9 @@ app.get("/tasks/TaskHistory", checkNotAuthenticated, (req, res) => {
 });
 
 app.get("/services/ServiceHistory", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist, s.service_status
-  FROM services s INNER JOIN machines m ON s.service_machine_id = m.machine_id WHERE service_exist=false
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, 
+  s.service_exist, s.service_status, s.service_user_id FROM services s 
+  INNER JOIN machines m ON s.service_machine_id = m.machine_id WHERE service_exist=false 
   ORDER BY s.service_id;`, function(error, results, fields) {
     if (error) throw error;
     const servicesH = results.rows.map(row => ({
@@ -294,13 +295,27 @@ app.get("/services/ServiceHistory", checkNotAuthenticated, (req, res) => {
       start_date: row.service_start_date,
       end_date: row.service_end_date,
       service_exist: row.service_exist,
-      service_status: row.service_status
+      service_status: row.service_status,
+      service_user_id: row.service_user_id
     }));
-    let index = 0;
-    res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
-    res.render("services/ServiceHistory", { servicesH, index, userRole: req.user.user_role });
+
+    pool.query(`SELECT user_id, CONCAT(user_name, ' ', user_surname) AS person FROM users;`, function(error, results, fields) {
+      if (error) throw error;
+      const userH = results.rows.map(row => ({
+        user_id: row.user_id,
+        person: row.person
+      }));
+
+      let index = 0;
+      res.locals.moment = moment;
+      res.render("services/ServiceHistory", { servicesH, userH, index, userRole: req.user.user_role });
+    });
   });
 });
+
+
+
+
 
 app.get("/alerts/AlertHistory", checkNotAuthenticated, (req, res) => {
   pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
