@@ -17,11 +17,11 @@
     <form action="/tasks/EditTask/<%= taskId %>" method="POST">
       <div class="form-group">
         <label for="">Nazwa zadania</label>
-        <input type="text" class="form-control" id="title" name="title" value="<%= taskData.task_title %>" required>
+        <input type="text" class="form-control" id="title" name="title" value="<%= taskData.task_title %>" maxlength="40" required>
       </div>
       <div class="form-group">
         <label for="">Szczegóły/opis zadania</label>
-        <input type="text" class="form-control" id="details" name="details" value="<%= taskData.task_details %>" required>
+        <input type="text" class="form-control" id="details" name="details" value="<%= taskData.task_details %>" maxlength="100" required>
       </div>
       <button type="submit" class="btn btn-warning">Edytuj zadanie</button>
     </form>

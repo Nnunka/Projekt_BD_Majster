@@ -17,7 +17,7 @@
     <form action="/alerts/EditAlert/<%= alertId %>" method="POST">
       <div class="form-group">
         <label for="">Nazwa</label>
-        <input type="text" class="form-control" id="title" name="title" value="<%= alertData.alert_title %>" required>
+        <input type="text" class="form-control" id="title" name="title" value="<%= alertData.alert_title %>" maxlength="40" required>
       </div>
       <div class="form-group">
         <label for="">Zgłaszający</label>
@@ -32,11 +32,7 @@
       </div>
       <div class="form-group">
         <label for="">Szczegóły/opis</label>
-        <input type="text" class="form-control" id="details" name="details" value="<%= alertData.alert_details %>" required>
-      </div>
-      <div class="form-group">
-        <label for="">Data dodania</label>
-        <input type="text" class="form-control" id="add_date" name="add_date" value="<%= moment(alertData.alert_add_date).format('DD MM YYYY HH:mm') %>" required>
+        <input type="text" class="form-control" id="details" name="details" value="<%= alertData.alert_details %>" maxlength="100" required>
       </div>
     
       <button type="submit" class="btn btn-warning">Edytuj zgłoszenie</button>

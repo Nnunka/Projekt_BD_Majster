@@ -843,7 +843,7 @@ app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
 
     const service = result.rows[0];
 
-    pool.query('SELECT service_id, service_title, service_machine_id, service_details, service_start_date, service_end_date FROM services WHERE service_id = $1', [serviceId], function(error, results) {
+    pool.query('SELECT service_id FROM services WHERE service_id = $1', [serviceId], function(error, results) {
       if (error) throw error;
     const ONEidService = results.rows.map(row => ({
       service_machine_id: row.service_machine_id
@@ -869,8 +869,8 @@ app.post('/services/EditService/:id', checkAuthenticated, (req, res) => {
   const { title, machine, details, start_date, end_date } = req.body;
  
   pool.query(
-    'UPDATE services SET service_title = $1, service_machine_id = $2, service_details = $3, service_start_date = $4, service_end_date = $5 WHERE service_id = $6',
-    [title, machine, details, start_date, end_date, serviceId],
+    'UPDATE services SET service_title = $1, service_machine_id = $2, service_details = $3 WHERE service_id = $4',
+    [title, machine, details, serviceId],
     (err, result) => {
       if (err) {
         console.error(err);
@@ -901,7 +901,7 @@ app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
     }
     const alert = result.rows[0];
 
-  pool.query('SELECT alert_id, alert_title, alert_who_add_id, alert_details, alert_add_date FROM alerts WHERE alert_id = $1', [alertId], function(error, results) {
+  pool.query('SELECT alert_id FROM alerts WHERE alert_id = $1', [alertId], function(error, results) {
     if (error) throw error;
   const ONEidAlert = results.rows.map(row => ({
     alert_who_add_id: row.alert_who_add_id,
@@ -928,8 +928,8 @@ app.post('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
   const { title, user, details, add_date } = req.body;
  
   pool.query(
-    'UPDATE alerts SET alert_title = $1, alert_who_add_id = $2, alert_details = $3, alert_add_date = $4 WHERE alert_id = $5',
-    [title, user, details, add_date, alertId],
+    'UPDATE alerts SET alert_title = $1, alert_who_add_id = $2, alert_details = $3 WHERE alert_id = $4',
+    [title, user, details, alertId],
     (err, result) => {
       if (err) {
         console.error(err);
