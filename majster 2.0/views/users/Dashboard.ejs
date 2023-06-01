@@ -25,7 +25,7 @@
           <tr>
             <th scope="col">Nazwa zadania</th>
             <th scope="col">Szczegóły/opis zadania</th>
-            <th scope="col">Data dodania</th>
+
             <th scope="col">Data przydzielenia zadania</th>
             <th scopr="col">Data rozpoczęcia</th>
           </tr>
@@ -35,7 +35,6 @@
             <tr>
               <td><%= adminT.title %></td>
               <td><%= adminT.details %></td>
-    
               <td>
                 <% if (moment(adminT.start_date).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
                   <p>---</p>
@@ -43,15 +42,6 @@
                   <%= moment(adminT.start_date).format('lll') %>
                 <% } %>
               </td>
-    
-              <td>
-                <% if (moment(adminT.start_date).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
-                  <p>---</p>
-                <% } else { %>
-                  <%= moment(adminT.start_date).format('lll') %>
-                <% } %>
-              </td>
-              
               <td>
                 <% if (moment(adminT.start_date_by_user).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
                   <p>---</p>
@@ -71,6 +61,7 @@
             <th scope="col">Maszyna</th>
             <th scope="col">Opis</th>
             <th scope="col">Data dodania serwisu</th>
+            <th spoce="col">Realizacja</th>
           </tr>
         </thead>
         <tbody>
@@ -80,6 +71,7 @@
               <td><%= adminS.machine_id %></td>
               <td><%= adminS.details %></td>
               <td><%= moment(adminS.start_date).format('lll') %></td>
+              <td><%= adminS.status %></td>
             </tr>
           <% }); %>
         </tbody>

@@ -27,6 +27,7 @@
         <th scope="col">Opis</th>
         <th scope="col">Data dodania serwisu</th>
         <th scope="col">Status serwisu</th>
+        <th scope="col">Wykonywany przez</th>
         <th scope="col">Data zakończenia</th>
         <% if (userRole === 'admin' || userRole === 'repairer') { %>
         <th scope="col"></th>
@@ -44,6 +45,19 @@
           <td><%= service.details %></td>
           <td><%= moment(service.start_date).format('lll') %></td>
           <td><%= service.service_status %></td>
+
+          <td>
+          <% if (service.service_user_id === 0) { %> <!-- Sprawdzamy, czy service_user_id równa się 0 -->
+            <p>---</p>
+          <% } else {
+            const matchedUser = user.find(user => user.user_id === service.service_user_id); <!--Przeszukujemy tablicę users w poszukiwaniu użytkownika o pasującym service_user_id-->
+            if (matchedUser) { %> <!-- Jeśli znaleziono dopasowanie -->
+              <%= matchedUser.person %> <!-- Wyświetlamy imię i nazwisko użytkownika -->
+            <% } else { %>
+              <p>---</p>
+            <% }} %>
+          </td>
+
           <td>
             <% if (moment(service.end_date).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
               <p>---</p>

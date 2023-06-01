@@ -112,7 +112,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         }));
   
         pool.query(
-          `SELECT s.service_id, s.service_title, m.machine_name, s.service_details, s.service_start_date
+          `SELECT s.service_id, s.service_title, m.machine_name, s.service_details, s.service_start_date, s.service_status
           FROM services s 
           INNER JOIN machines m ON s.service_machine_id = m.machine_id 
           WHERE s.service_exist=true AND s.service_status='W trakcie'
@@ -125,6 +125,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
               machine_id: row.machine_name,
               details: row.service_details,
               start_date: row.service_start_date,
+              status: row.service_status
             }));
   
             let index = 0;
@@ -198,7 +199,7 @@ app.get("/tasks/TaskList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Zadania wraz z wyświetleniem zadań zawartych w bazie danych
 
 app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist, s.service_status
+  pool.query(`SELECT s.service_id, s.service_title, m.machine_id, m.machine_name, s.service_details, s.service_start_date, s.service_end_date, s.service_exist, s.service_status, s.service_user_id
   FROM services s 
   INNER JOIN machines m ON s.service_machine_id = m.machine_id 
   WHERE service_exist=true
@@ -213,11 +214,21 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
       start_date: row.service_start_date,
       end_date: row.service_end_date,
       service_exist: row.service_exist,
-      service_status: row.service_status
+      service_status: row.service_status,
+      service_user_id: row.service_user_id
     }));
-    let index = 0;
+
+    pool.query(`SELECT user_id, CONCAT(user_name, ' ', user_surname) AS person FROM users;`, function(error, results, fields) {
+      if (error) throw error;
+      const user = results.rows.map(row => ({
+        user_id: row.user_id,
+        person: row.person
+      }));
+
+      let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
-    res.render("services/ServicesList", { services, index, userRole: req.user.user_role });
+    res.render("services/ServicesList", { services, user, index, userRole: req.user.user_role });
+    });
   });
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
