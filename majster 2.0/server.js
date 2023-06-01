@@ -778,22 +778,51 @@ app.get('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
 app.post('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
   const machineId = req.params.id;
 
-  const {name, type, status} = req.body;
+  const { name, type } = req.body;
+  let errors = [];
 
-  pool.query(
-    'UPDATE machines SET machine_name = $1, machine_type = $2, machine_status = $3 WHERE machine_id = $4',
-    [name, type, status, machineId],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
+  if (errors.length > 0) {
+    const machineData = { name, type };
+    res.render("machines/EditMachine", { machineId, machineData, errors });
+  } else {
+    pool.query(
+      `SELECT * FROM machines WHERE machine_name = $1 AND machine_id != $2`, //spr czy jest już taka nazwa maszyny jest już w bazie 
+      [name, machineId],
+      (err, result) => {
+        if (err) {
+          console.error(err);
+          res.sendStatus(500);
+          return;
+        }
+
+        if (result.rows.length > 0) {
+          errors.push({ message: "Maszyna o tej nazwie jest jest już w bazie!" });
+          const machineData = {
+            machine_name: name,
+            machine_type: type
+          };
+          res.render("machines/EditMachine", { machineId, machineData, errors });
+        } else {
+          pool.query(
+            'UPDATE machines SET machine_name = $1, machine_type = $2 WHERE machine_id = $3',
+            [name, type, machineId],
+            (err, result) => {
+              if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+              }
+
+              res.redirect('/machines/MachinesList');
+            }
+          );
+        }
       }
-
-      res.redirect('/machines/MachinesList');
-    }
-  );
+    );
+  }
 });
+
+
 
 ////////////////////////////////////////EDYCJA SERWISOWANIA///////////////////////////////////////////
 app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
