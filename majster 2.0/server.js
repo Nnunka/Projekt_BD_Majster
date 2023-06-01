@@ -342,7 +342,7 @@ app.post('/users/AddUser', async (req, res) => {
   } else {
     // spr czy dany login jest już w bazie
     pool.query(
-      `SELECT * FROM users WHERE user_login = $1`, [login], (err, result) => {
+      `SELECT * FROM users WHERE user_login = $1 AND user_exist=true`, [login], (err, result) => {
         if (err) {
           throw err;
         }
@@ -353,7 +353,7 @@ app.post('/users/AddUser', async (req, res) => {
         } else {
           // spr czy dany email jest już w bazie
           pool.query(
-            `SELECT * FROM users WHERE user_email = $1`, [email], (err, result) => {
+            `SELECT * FROM users WHERE user_email = $1 AND user_exist=true`, [email], (err, result) => {
               if (err) {
                 throw err;
               }
@@ -432,7 +432,7 @@ app.post('/machines/AddMachine', async (req, res) => {
     // Sprawdzenie, czy dana nazwa maszyny już istnieje w bazie
     pool.query(
       `SELECT * FROM machines 
-      WHERE machine_name = $1`, 
+      WHERE machine_name = $1 and machine_exist=true`, 
       [name], 
       (err, result) => {
         if (err) {
@@ -695,7 +695,7 @@ app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
     res.render("users/EditUser", { userId: userId, userData: userData, errors });
   } else {
     pool.query(
-      `SELECT * FROM users WHERE user_login = $1 AND user_id != $2`, //spr czy jest już taki login w bazie jest już taki login 
+      `SELECT * FROM users WHERE user_login = $1 AND user_id != $2 AND user_exist=true`, //spr czy jest już taki login w bazie jest już taki login 
       [login, userId],
       (err, result) => {
         if (err) {
@@ -715,7 +715,7 @@ app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
           res.render("users/EditUser", { userId: userId, userData: user, errors });
         } else {
           pool.query(
-            `SELECT * FROM users WHERE user_email = $1 AND user_id != $2`, //spr czy jest już taki login w bazie jest już taki emial
+            `SELECT * FROM users WHERE user_email = $1 AND user_id != $2 AND user_exist=true`, //spr czy jest już taki login w bazie jest już taki emial
             [email, userId],
             (err, result) => {
               if (err) {
@@ -786,7 +786,7 @@ app.post('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
     res.render("machines/EditMachine", { machineId, machineData, errors });
   } else {
     pool.query(
-      `SELECT * FROM machines WHERE machine_name = $1 AND machine_id != $2`, //spr czy jest już taka nazwa maszyny jest już w bazie 
+      `SELECT * FROM machines WHERE machine_name = $1 AND machine_id != $2 AND machine_exist=true`, //spr czy jest już taka nazwa maszyny jest już w bazie 
       [name, machineId],
       (err, result) => {
         if (err) {
