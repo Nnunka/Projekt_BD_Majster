@@ -1010,10 +1010,29 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
         res.sendStatus(500);
         return;
       }
-
-      res.redirect('/tasks/TaskList');
-    }
-  );
+      pool.query(
+        `UPDATE machines m
+        SET machine_status = 'Sprawna'
+        FROM realize_tasks rt
+        WHERE m.machine_id = rt.realize_machine_id
+              AND rt.realize_task_id = $1::bigint;`,
+        [taskId],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+          }
+          pool.query(
+            `DELETE FROM realize_tasks WHERE realize_task_id = $1`,[taskId],
+             (err, results) => {
+              if (err) {
+                throw err;
+              }
+              res.redirect('/tasks/TaskList');
+            });
+        });
+    });
 });
 
 ////////////////////////////////////////USUWANIE UŻYTKOWNIKA///////////////////////////////////////////
