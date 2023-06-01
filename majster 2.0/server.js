@@ -323,7 +323,7 @@ app.get("/alerts/AlertHistory", checkNotAuthenticated, (req, res) => {
 //////////////////////////////////DODANIE NOWEGO UŻYTKOWNIKA/////////////////////////////////////////////////
 app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
   res.render("users/AddUser");
-}); // obsługa żądania get, przejście na stronę - AddTask
+}); // obsługa żądania get, przejście na stronę - AddUser
 
 app.post('/users/AddUser', async (req, res) => {
   let { name, surname, email, login, password, role } = req.body;
@@ -422,50 +422,46 @@ app.get("/machines/AddMachine", checkNotAuthenticated, (req, res) => {
 
 // dodanie nowej maszyny do bazy poprzez formularz
 app.post('/machines/AddMachine', async (req, res) => {
+  const { name, type, status } = req.body;
+  console.log({ name, type });
+  const errors = [];
 
-  let { name, type, status} = req.body;
-  console.log({
-    name,
-    type,
-    status,
-  })
-  let errors = [];
-
-  if (!name || !type || !status) {
-    errors.push({ message: "Wypełnij wszystkie pola!" });
-  }
   if (errors.length > 0) {
-    res.render("/machines/AddMachine", { errors });
-  } else {  
-    // spr czy dana maszyna jest już w bazie
+    res.render("machines/AddMachine", { errors });
+  } else {
+    // Sprawdzenie, czy dana nazwa maszyny już istnieje w bazie
     pool.query(
       `SELECT * FROM machines 
-      WHERE machine_name = $1`, [name], (err, result) => {
+      WHERE machine_name = $1`, 
+      [name], 
+      (err, result) => {
         if (err) {
-          throw err
+          throw err;
         }
         console.log(result.rows);
         if (result.rows.length > 0) {
-          errors.push({ message: "Taka maszyna jest już w bazie!" })
-          res.render("/machines/AddMachine", { errors });
+          errors.push({ message: "Maszyna o tej nazwie jest jest już w bazie!" });
+          res.render("machines/AddMachine", { errors });
         } else {
-          // dodanie maszyny do bazy
+          // Dodanie maszyny do bazy danych
           pool.query(
             `INSERT INTO machines (machine_name, machine_type, machine_status)
             VALUES ($1, $2, $3)
-            RETURNING machine_id`, [name, type, status,],
+            RETURNING machine_id`, 
+            [name, type, 'Sprawna'],
             (err, results) => {
               if (err) {
                 throw err;
               }
               console.log(results.rows);
-              console.log("nowa maszyna w bazie") 
+              console.log("Nowa maszyna w bazie.");
               req.flash("success_msg", "Dodano nową maszynę");
               res.redirect("/machines/MachinesList");
-            })
-        }}
-    )}
-});
+          });
+        }
+    });
+}});
+
 
 //////////////////////////////////DODANIE NOWEGO SERWISOWANIA/////////////////////////////////////////////////
 app.get('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
