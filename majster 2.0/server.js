@@ -44,10 +44,6 @@ app.get("/Login", (req, res) =>{
   res.render("Login");
 }); // obsługa żądania get, przejście na stronę - Login
 
-app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
-  res.render("users/AddUser");
-}); // obsługa żądania get, przejście na stronę - AddUser
-
 app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
   if(req.user.user_role=='user')
   {
@@ -325,6 +321,10 @@ app.get("/alerts/AlertHistory", checkNotAuthenticated, (req, res) => {
 
 
 //////////////////////////////////DODANIE NOWEGO UŻYTKOWNIKA/////////////////////////////////////////////////
+app.get("/users/AddUser", checkNotAuthenticated, (req, res) => {
+  res.render("users/AddUser");
+}); // obsługa żądania get, przejście na stronę - AddTask
+
 app.post('/users/AddUser', async (req, res) => {
   let { name, surname, email, login, password, role } = req.body;
   console.log({
@@ -337,16 +337,10 @@ app.post('/users/AddUser', async (req, res) => {
   })
   let errors = [];
 
-  if (!name || !surname || !email || !login || !password || !role) {
-    errors.push({ message: "Wypełnij wszystkie pola!" });
-  }
-  if (password.length < 4) {
-    errors.push({ message: "Hasło musi mieć przynajmniej 4 znaki!" });
-  }
   if (errors.length > 0) {
     res.render("users/AddUser", { errors });
   } else {
-    // Sprawdzenie czy dany login jest już w bazie
+    // spr czy dany login jest już w bazie
     pool.query(
       `SELECT * FROM users WHERE user_login = $1`, [login], (err, result) => {
         if (err) {
@@ -357,7 +351,7 @@ app.post('/users/AddUser', async (req, res) => {
           errors.push({ message: "Taki login jest już w bazie!" })
           res.render("users/AddUser", { errors });
         } else {
-          // Sprawdzenie czy dany email jest już w bazie
+          // spr czy dany email jest już w bazie
           pool.query(
             `SELECT * FROM users WHERE user_email = $1`, [email], (err, result) => {
               if (err) {
@@ -368,7 +362,7 @@ app.post('/users/AddUser', async (req, res) => {
                 errors.push({ message: "Taki email jest już w bazie!" })
                 res.render("users/AddUser", { errors });
               } else {
-                // Jeśli wszystko git - Dodanie użytkownika do bazy
+                // jeśli wszystko git - dodanie użytkownika do bazy
                 pool.query(
                   `INSERT INTO users (user_name, user_surname, user_email, user_login, user_password, user_role)
                   VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id, user_password`, [name, surname, email, login, password, role],
@@ -700,19 +694,12 @@ app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
   const { name, surname, email, login, password, role } = req.body;
   let errors = [];
 
-  if (!name || !surname || !email || !login || !password || !role) {
-    errors.push({ message: "Wypełnij wszystkie pola!" });
-  }
-  if (password.length < 4) {
-    errors.push({ message: "Hasło musi mieć przynajmniej 4 znaki!" });
-  }
-
   if (errors.length > 0) {
     const userData = { name, surname, email, login, password, role };
     res.render("users/EditUser", { userId: userId, userData: userData, errors });
   } else {
     pool.query(
-      `SELECT * FROM users WHERE user_login = $1 AND user_id != $2`, //spr czy jest już taki login w bazie dla innych użytkowników niż ten którego edytujemy
+      `SELECT * FROM users WHERE user_login = $1 AND user_id != $2`, //spr czy jest już taki login w bazie jest już taki login 
       [login, userId],
       (err, result) => {
         if (err) {
@@ -732,7 +719,7 @@ app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
           res.render("users/EditUser", { userId: userId, userData: user, errors });
         } else {
           pool.query(
-            `SELECT * FROM users WHERE user_email = $1 AND user_id != $2`, //spr czy jest już taki email w bazie dla innych użytkowników niż ten którego edytujemy
+            `SELECT * FROM users WHERE user_email = $1 AND user_id != $2`, //spr czy jest już taki login w bazie jest już taki emial
             [email, userId],
             (err, result) => {
               if (err) {
@@ -751,6 +738,7 @@ app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
                 }; //potrzebujemy tego, aby po wyręderowaniu błędu na stronie związanego z złym uzupełnieniem formularza, nie znikły dane domyślne pobrane z bazy
                 res.render("users/EditUser", { userId: userId, userData: user, errors });
               } else {
+                // jeśli wszystko git - dodanie użytkownika do bazy
                 pool.query(
                   `UPDATE users SET user_name = $1, user_surname = $2, user_email = $3, user_login = $4, user_password = $5, user_role = $6  WHERE user_id = $7`,
                   [name, surname, email, login, password, role, userId],
