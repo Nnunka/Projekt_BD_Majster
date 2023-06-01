@@ -398,7 +398,7 @@ app.post('/tasks/AddTask', async (req, res) => {
 
   // dodanie zadania do bazy
   pool.query(
-    `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date, task_start_date_by_user)
+    `INSERT INTO tasks (task_title, task_details, task_add_date)
     VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING task_id`,
     [title, details, obecnaData, start_date, end_date, start_date_by_user],
@@ -647,11 +647,11 @@ app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
 app.post('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
 
-  const { title, details, add_date, start_date, end_date } = req.body;
+  const { title, details} = req.body;
 
   pool.query(
-    'UPDATE tasks SET task_title = $1, task_details = $2, task_add_date = $3, task_start_date = $4, task_end_date = $5 WHERE task_id = $6',
-    [title, details, add_date, start_date, end_date, taskId],
+    'UPDATE tasks SET task_title = $1, task_details = $2 WHERE task_id = $3',
+    [title, details, taskId],
     (err, result) => {
       if (err) {
         console.error(err);
