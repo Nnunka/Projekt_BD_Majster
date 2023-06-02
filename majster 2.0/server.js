@@ -1039,53 +1039,88 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
 app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
   const userId = req.params.id;
   const start_date = new Date(1970, 0, 1, 0, 0, 0);
-
   pool.query(
-    'UPDATE users SET user_exist=false WHERE user_id = $1',
+    `SELECT * FROM users WHERE user_id = $1 AND user_role = 'repairer'`, //spr czy dany user to nie jest serwisant 
     [userId],
     (err, result) => {
       if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
+        throw err;
       }
-      pool.query(
-        `UPDATE machines m
-        SET machine_status = 'Sprawna'
-        FROM realize_tasks rt
-        WHERE m.machine_id = rt.realize_machine_id
-              AND rt.realize_user_id = $1::bigint;`,
-        [userId],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
+      if (result.rows.length > 0) {
+        pool.query(
+          'UPDATE users SET user_exist=false WHERE user_id = $1',
+          [userId],
+          (err, result) => {
+            if (err) {
+              console.error(err);
+              res.sendStatus(500);
+              return;
+            }
+            pool.query(
+              `UPDATE services s
+              SET service_status = 'Nie zaczęte'
+              WHERE s.service_user_id = $1::bigint;`,
+              [userId],
+              (err, result) => {
+                if (err) {
+                  console.error(err);
+                  res.sendStatus(500);
+                  return;
+                }
+                res.redirect('/users/UsersList');
+              }
+            );
           }
-          pool.query(
-            `UPDATE tasks t
-            SET task_start_date = $2
-            FROM realize_tasks rt
-            WHERE t.task_id = rt.realize_task_id
+        );
+      } else {
+        pool.query(
+          'UPDATE users SET user_exist=false WHERE user_id = $1',
+          [userId],
+          (err, result) => {
+            if (err) {
+              console.error(err);
+              res.sendStatus(500);
+              return;
+            }
+            pool.query(
+              `UPDATE machines m
+              SET machine_status = 'Sprawna'
+              FROM realize_tasks rt
+              WHERE m.machine_id = rt.realize_machine_id
+              AND rt.realize_user_id = $1::bigint;`,
+              [userId],
+              (err, result) => {
+                if (err) {
+                  console.error(err);
+                  res.sendStatus(500);
+                  return;
+                }
+                pool.query(
+                  `UPDATE tasks t
+                  SET task_start_date = $2
+                  FROM realize_tasks rt
+                  WHERE t.task_id = rt.realize_task_id
                   AND rt.realize_user_id = $1::bigint;`,
-            [userId,start_date],
-            (err, result) => {
-              if (err) {
-                console.error(err);
-                res.sendStatus(500);
-                return;
-              }
-          pool.query(
-            `DELETE FROM realize_tasks WHERE realize_user_id = $1`,[userId],
-             (err, results) => {
-              if (err) {
-                throw err;
-              }
-              res.redirect('/users/UsersList');
-            });
-        });
-      });
-    });
+                  [userId, start_date],
+                  (err, result) => {
+                    if (err) {
+                      console.error(err);
+                      res.sendStatus(500);
+                      return;
+                    }
+                    pool.query(
+                      `DELETE FROM realize_tasks WHERE realize_user_id = $1`,
+                      [userId],
+                      (err, results) => {
+                        if (err) {
+                          throw err;
+                        }
+                        res.redirect('/users/UsersList');
+                      });
+                    });
+              });
+          });
+      }});
 });
 
 ////////////////////////////////////////USUWANIE MASZYN///////////////////////////////////////////
