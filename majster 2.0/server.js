@@ -141,18 +141,35 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
               start_date: row.service_start_date,
               status: row.service_status
             }));
+
+            pool.query(
+              `SELECT a.alert_id, a.alert_title, a.alert_details, a.alert_exist, a.alert_machine_id, a.alert_status, mc.machine_id, mc.machine_name FROM alerts a
+              JOIN machines mc ON a.alert_machine_id = mc.machine_id
+              WHERE a.alert_exist=true AND a.alert_status='W trakcie' ORDER BY a.alert_id;`,
+              function (error, results, fields) {
+                if (error) throw error;
+                const adminA = results.rows.map((row) => ({
+                  alerId: row.alert_id,
+                  alertTitle: row.alert_title,
+                  alertDetails: row.alert_details,
+                  alertExist: row.alert_exist,
+                  alertStatus: row.alert_status,
+                  machineName: row.machine_name
+                }));
   
             let index = 0;
             res.locals.moment = moment; // trzeba zdefiniować, aby móc użyć biblioteki moment do formatu daty
             res.render("users/Dashboard", {
               adminT,
               adminS,
+              adminA,
               index,
               userRole: req.user.user_role,
               user_name: req.user.user_name,
               user_surname: req.user.user_surname,
             });
           });
+        });
       });
     }
 }); // po zalogowaniu wyświetla login i role zalogowanego użytkownika - Dashboard

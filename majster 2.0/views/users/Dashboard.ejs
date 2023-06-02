@@ -77,6 +77,27 @@
         </tbody>
       </table>
 
+      <h4>Obecnie naprawiane awarie</h4>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Tytuł awarii</th>
+              <th scope="col">Opis</th>
+              <th scope="col">Nazwa maszyny</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% adminA.forEach(function(adminA) { %>
+              <tr>
+                <td><%= adminA.alertTitle %></td>
+                <td><%= adminA.alertDetails %></td>
+                <td><%= adminA.machineName %></td>
+
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+
 
       <% } else if (userRole === 'user') { %>
         <p>Rola: pracownik</p>
