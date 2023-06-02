@@ -514,33 +514,60 @@ app.get('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
   const serviceId = req.params.id;
 
-  const { title, machine, details} = req.body;
+  const { title, machine, details } = req.body;
 
   const end_date = new Date(1970, 0, 1, 0, 0, 0);
   const obecnaData = new Date();
 
   pool.query(
     `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
-     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, serviceId, details, obecnaData, end_date],
-     (err, results) => {
+     VALUES ($1, $2, $3, $4, $5) RETURNING service_id`,
+    [title, serviceId, details, obecnaData, end_date],
+    (err, results) => {
       if (err) {
         throw err;
       }
+
       pool.query(
         'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
         [serviceId, 'Serwis'],
-         (err, results) => {
+        (err, results) => {
           if (err) {
             throw err;
           }
-      console.log(results.rows);
-      console.log("nowa zlecenie serwisowe w bazie")
 
-      req.flash("success_msg", "Dodano nowego zlecenie serwisowe");
-      res.redirect("/machines/MachinesList");
+          pool.query(
+            `UPDATE tasks t
+            SET task_start_date = $2
+            FROM realize_tasks rt
+            WHERE t.task_id = rt.realize_task_id
+              AND rt.realize_machine_id = $1::bigint;`,
+            [serviceId, end_date],
+            (err, result) => {
+              if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+              }
+
+              pool.query(
+                `DELETE FROM realize_tasks WHERE realize_machine_id = $1`,
+                [serviceId],
+                (err, results) => {
+                  if (err) {
+                    throw err;
+                  }
+
+                  console.log(results.rows);
+                  console.log("Nowe zlecenie serwisowe w bazie");
+
+                  req.flash("success_msg", "Dodano nowe zlecenie serwisowe");
+                  res.redirect("/machines/MachinesList");
+                });
+            });
+        });
     });
-  });
-});
+})
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
 app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
