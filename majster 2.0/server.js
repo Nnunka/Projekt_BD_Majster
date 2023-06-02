@@ -1058,7 +1058,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
             }
             pool.query(
               `UPDATE services s
-              SET service_status = 'Nie zaczęte'
+              SET service_status = 'Nie zaczęte, service_user_id=0 '
               WHERE s.service_user_id = $1::bigint;`,
               [userId],
               (err, result) => {
