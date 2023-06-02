@@ -11,14 +11,15 @@
     <% } 
     else if (userRole === 'repairer') { %>
       <%- include('../components/SerwiceNavbar')%>
-  <% } %>
+    <% } %>
   </header>
 
   <ul>
     <% if(typeof errors != 'undefined') { %> 
       <% errors.forEach(error=>{%>
         <li><%= error.message %></li> 
-   <% })  %> <% } %>
+      <% })  %> 
+    <% } %>
   </ul>
 
   <div class="vh-100 d-flex justify-content-left align-items-top mt-4 ml-4">
@@ -31,6 +32,16 @@
         <label for="">Podaj opis</label>
         <input type="text" class="form-control" id="details" name="details" placeholder="Opis zgłoszenia" maxlength="100" required>
       </div>
+
+      <div class="form-group">
+        <label for="">Wybierz maszynę</label>
+        <select class="form-control" id="machine" name="machine" required>
+          <% machines.forEach(machine => { %>
+            <option value="<%= machine.machine_id %>"><%= machine.machine_name %></option>
+          <% }) %>
+        </select>
+      </div>
+
       <button type="submit" class="btn btn-warning">Dodaj zgłoszenie</button>
     </form>
   </div>

@@ -545,23 +545,26 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
 app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
   const alertId = req.params.id;
-    res.render("alerts/AddAlert", { alertId: alertId, userRole: req.user.user_role });
+  pool.query(`SELECT machine_id, machine_name FROM machines WHERE machine_exist = true;`, function(error, results) {
+    if (error) throw error;
+    const machines = results.rows;
+    res.render("alerts/AddAlert", { alertId: alertId, machines: machines, userRole: req.user.user_role });
+  });
 });
 
-// dodanie nowej zlecenia serwisowego do bazy poprzez formularz
 app.post('/alerts/AddAlert', async (req, res) => {
   const userRole = req.user.user_role;
-  const user= req.user.user_id;
-  const { title, details} = req.body;
+  const user = req.user.user_id;
+  const { title, details, machine } = req.body;
 
   const obecnaData = new Date();
 
   // dodanie zgłoszenia do bazy
   pool.query(
     `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date, alert_machine_id)
-    VALUES ($1, $2, $3, $4, COALESCE((SELECT realize_machine_id FROM realize_tasks WHERE realize_user_id = $5), 0))
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING alert_id`,
-    [title, user, details, obecnaData, user],
+    [title, user, details, obecnaData, machine],
     (err, results) => {
       if (err) {
         throw err;
@@ -576,6 +579,7 @@ app.post('/alerts/AddAlert', async (req, res) => {
     }
   );
 });
+
 
 
 //////////////////////////////////DODANIE ZADANIA DO REALIZACJI/////////////////////////////////////////////////
