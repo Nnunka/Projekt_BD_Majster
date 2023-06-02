@@ -26,12 +26,13 @@
         <th scope="col">Kto zgłosił</th>
         <th scope="col">Opis</th>
         <th scope="col">Data dodania</th>
+        <th scope="col">Maszyna</th>
+        <th scope="col">Status</th>
         <% if (userRole === 'admin' || userRole === 'repairer') { %>
         <th scope="col"></th>
-        <% } %>
-        <% if (userRole === 'admin') { %>
         <th scope="col"></th>
         <% } %>
+
       </tr>
     </thead>
     <tbody>
@@ -41,10 +42,29 @@
           <td><%= alert.who_add_id %></td>
           <td><%= alert.details %></td>
           <td><%= moment(alert.add_date).format('lll')%></td>
+          <td><%= alert.machine_name%></td>
+          <td><% if (alert.status === 'Brak') { %>
+            <p>---</p>
+            <% } else {%>
+              <%= alert.status %>
+           <% } %>
+          </td>
           <% if (userRole === 'admin' || userRole === 'repairer') { %>
           <td>
             <button class="btn btn-warning"><a href="/alerts/EditAlert/<%= alert.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
+          <% if (userRole === 'repairer') { %>
+            <% if (alert.status === 'Wykonane') { %>
+              <td>Zakończono</td>
+            <% } else if (alert.status === 'Nie zaczęte'){ %>
+              <td>
+                <button class="btn btn-success"><a href="/alerts/StartAlert/<%= alert.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
+              </td>
+            <% } else { %>
+              <td>W trakcie</td>
+            <% } %>
+          
+            <% } %>
           <% } %>
           <% if (userRole === 'admin') { %>
           <td>

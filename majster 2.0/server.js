@@ -73,10 +73,9 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
     });
   } 
   else if (req.user.user_role=='repairer') {
-    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type, mc.machine_id, a.alert_title, a.alert_details, a.alert_add_date 
+    pool.query(`SELECT s.service_id, s.service_title, mc.machine_name, s.service_details, mc.machine_type, mc.machine_id 
     FROM services s 
     LEFT JOIN machines mc ON s.service_machine_id = mc.machine_id 
-    LEFT JOIN alerts a ON a.alert_machine_id = mc.machine_id 
     WHERE s.service_exist = true AND s.service_status = 'W trakcie' AND s.service_user_id = $1;`,[req.user.user_id], function(error, results, fields) {
       if (error) throw error;
       const service = results.rows.map(row => ({
@@ -86,14 +85,28 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
         details: row.service_details,
         type: row.machine_type,
         MID: row.machine_id,
+      }));
+      pool.query(`
+      SELECT a.alert_id, a.alert_title, a.alert_details, a.alert_add_date, a.alert_status, mc.machine_id, mc.machine_name, u.user_id
+      FROM alerts a
+      LEFT JOIN machines mc ON a.alert_machine_id = mc.machine_id 
+      LEFT JOIN users u ON a.alert_repairer_id = u.user_id 
+      WHERE a.alert_status='W trakcie' AND a.alert_repairer_id = $1;`, [req.user.user_id], function(error, results, fields) {
+      if (error) throw error;
+      const alert = results.rows.map(row => ({
+        id: row.alert_id,
         alertTitle: row.alert_title,
         alertDetails: row.alert_details,
-        alertData: row.alert_add_date
+        alertData: row.alert_add_date,
+        alertStatus: row.alert_status,
+        MID: row.machine_id,
+        alertMachineName: row.machine_name
       }));
       let index = 0;
       res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
-      res.render("users/Dashboard", { service, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
+      res.render("users/Dashboard", { service, alert, index, userRole: req.user.user_role, user_name: req.user.user_name, user_surname: req.user.user_surname });
     });
+  });
   } 
   else {
     const date = new Date(1970, 0, 1, 0, 0, 0);
@@ -234,15 +247,20 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
-   FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id WHERE alert_exist=true ORDER BY alert_id`, function(error, results, fields) {
+  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add ,
+   a.alert_details, a.alert_add_date, a.alert_status, a.alert_machine_id, m.machine_name, m.machine_id
+   FROM alerts a INNER JOIN machines m ON a.alert_machine_id = m.machine_id
+   INNER JOIN users u ON a.alert_who_add_id=u.user_id WHERE alert_exist=true ORDER BY alert_id`, function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
       id: row.alert_id,
       title: row.alert_title,
       who_add_id: row.who_add,
       details: row.alert_details,
-      add_date: row.alert_add_date
+      add_date: row.alert_add_date,
+      status: row.alert_status,
+      machine: row.alert_machine_id,
+      machine_name: row.machine_name
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -1302,10 +1320,18 @@ app.get('/alerts/DeleteAlert/:id', checkAuthenticated, (req, res) => {
         res.sendStatus(500);
         return;
       }
-
-      res.redirect('/alerts/AlertsList');
-    }
-  );
+      pool.query(
+        'UPDATE machines SET machine_status = $1 FROM alerts WHERE machine_id = alert_machine_id;',
+        ['Sprawna'],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+          }
+          res.redirect('/alerts/AlertsList');
+        })
+    });
 });
 
 ////////////////////////////////////////USUWANIE REALIZACJI///////////////////////////////////////////
@@ -1393,8 +1419,6 @@ app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
 app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
   const serviceId = req.params.Sid;
 
-  const obecnaData = new Date();
-
   pool.query(
     'UPDATE services SET service_user_id= $2, service_status = $3 WHERE service_id = $1;',
     [serviceId, req.user.user_id, 'W trakcie'],
@@ -1440,7 +1464,54 @@ app.get('/service/EndService/:id/:Mid', checkAuthenticated, (req, res) => {
     });
   });
 
+////////////////////////////////////////ROZPOCZĘCIE AWARII///////////////////////////////////////////
+app.get('/alerts/StartAlert/:Aid', checkAuthenticated, (req, res) => {
+  const alertId = req.params.Aid;
 
+  pool.query(
+    'UPDATE alerts SET alert_status= $1, alert_repairer_id =$2 WHERE alert_id=$3',
+    ['W trakcie',req.user.user_id,alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/alerts/AlertsList');
+  });
+});
+
+////////////////////////////////////////ZAKONCZENIE AWARII///////////////////////////////////////////
+app.get('/alerts/EndAlert/:Aid/:Mid', checkAuthenticated, (req, res) => {
+  const alertId = req.params.Aid;
+  const machineId = req.params.Mid;
+  
+  const obecnaData = new Date();
+
+  pool.query(
+    'UPDATE alerts SET alert_status= $1 WHERE alert_id=$2',
+    ['Wykonane',alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+  
+      pool.query(
+        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
+        [machineId, 'Sprawna'],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+            }
+          res.redirect('/users/Dashboard');
+        });
+    });
+  });
 
 
 
