@@ -234,7 +234,7 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
+  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date, alert_status
    FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id WHERE alert_exist=true ORDER BY alert_id`, function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
@@ -242,7 +242,8 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
       title: row.alert_title,
       who_add_id: row.who_add,
       details: row.alert_details,
-      add_date: row.alert_add_date
+      add_date: row.alert_add_date,
+      status: row.alert_status
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty

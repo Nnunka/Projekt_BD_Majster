@@ -26,6 +26,7 @@
         <th scope="col">Kto zgłosił</th>
         <th scope="col">Opis</th>
         <th scope="col">Data dodania</th>
+        <th scope="col">Status</th>
         <% if (userRole === 'admin' || userRole === 'repairer') { %>
         <th scope="col"></th>
         <% } %>
@@ -41,6 +42,7 @@
           <td><%= alert.who_add_id %></td>
           <td><%= alert.details %></td>
           <td><%= moment(alert.add_date).format('lll')%></td>
+          <td><%= alert.status %></td>
           <% if (userRole === 'admin' || userRole === 'repairer') { %>
           <td>
             <button class="btn btn-warning"><a href="/alerts/EditAlert/<%= alert.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
