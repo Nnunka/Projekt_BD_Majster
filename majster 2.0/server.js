@@ -1303,10 +1303,18 @@ app.get('/alerts/DeleteAlert/:id', checkAuthenticated, (req, res) => {
         res.sendStatus(500);
         return;
       }
-
-      res.redirect('/alerts/AlertsList');
-    }
-  );
+      pool.query(
+        'UPDATE machines SET machine_status = $1 FROM alerts WHERE machine_id = alert_machine_id;',
+        ['Sprawna'],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+          }
+          res.redirect('/alerts/AlertsList');
+        })
+    });
 });
 
 ////////////////////////////////////////USUWANIE REALIZACJI///////////////////////////////////////////
