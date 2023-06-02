@@ -234,7 +234,8 @@ app.get("/services/ServicesList", checkNotAuthenticated, (req, res) => {
 }); //przejście na stronę Serwis wraz z wyświetleniem serwisów zawartych w bazie danych
 
 app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
-  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date, alert_status
+  pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add ,
+   a.alert_details, a.alert_add_date, a.alert_status, a.alert_machine_id
    FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id WHERE alert_exist=true ORDER BY alert_id`, function(error, results, fields) {
     if (error) throw error;
     const alerts = results.rows.map(row => ({
@@ -243,7 +244,8 @@ app.get("/alerts/AlertsList", checkNotAuthenticated, (req, res) => {
       who_add_id: row.who_add,
       details: row.alert_details,
       add_date: row.alert_add_date,
-      status: row.alert_status
+      status: row.alert_status,
+      machine: row.alert_machine_id
     }));
     let index = 0;
     res.locals.moment = moment; //trzeba zdefiniować aby móc użyć biblioteki moment do formatu daty
@@ -1449,7 +1451,56 @@ app.get('/service/EndService/:id/:Mid', checkAuthenticated, (req, res) => {
     });
   });
 
+////////////////////////////////////////ROZPOCZĘCIE AWARII///////////////////////////////////////////
+app.get('/alerts/StartAlert/:Aid', checkAuthenticated, (req, res) => {
+  const alertId = req.params.Aid;
 
+  const obecnaData = new Date();
+
+  pool.query(
+    'UPDATE alerts SET alert_status= $1 WHERE alert_id=$2',
+    ['W trakcie',alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.redirect('/users/Dashboard');
+  });
+});
+
+////////////////////////////////////////ZAKONCZENIE AWARII///////////////////////////////////////////
+app.get('/alerts/EndAlert/:Aid/:Mid', checkAuthenticated, (req, res) => {
+  const alertId = req.params.Aid;
+  const machineId = req.params.Mid;
+  
+  const obecnaData = new Date();
+
+  pool.query(
+    'UPDATE alerts SET alert_status= $1 WHERE alert_id=$2',
+    ['Wykonane',alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }
+  
+      pool.query(
+        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
+        [machineId, 'Sprawna'],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+            }
+          res.redirect('/users/Dashboard');
+        });
+    });
+  });
 
 
 

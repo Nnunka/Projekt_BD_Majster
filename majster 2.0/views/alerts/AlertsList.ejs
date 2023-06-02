@@ -47,6 +47,16 @@
           <td>
             <button class="btn btn-warning"><a href="/alerts/EditAlert/<%= alert.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
           </td>
+          <% if (userRole === 'repairer') { %>
+            <% if (alert.status === 'W trakcie') { %>
+              <td>
+                <button class="btn btn-danger"><a href="/alerts/EndAlert/<%= alert.id %>/<%= alert.machine %>" class="text-decoration-none text-dark">Zakończ</a></button>
+              </td>
+              <% } else { %>
+            <td>
+              <button class="btn btn-danger"><a href="/alerts/StartAlert/<%= alert.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
+            </td>
+            <% }} %>
           <% } %>
           <% if (userRole === 'admin') { %>
           <td>
