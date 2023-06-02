@@ -31,6 +31,16 @@
         <label for="">Podaj opis</label>
         <input type="text" class="form-control" id="details" name="details" placeholder="Opis zgłoszenia" maxlength="100" required>
       </div>
+        <div class="form-group">
+          <label for="">Na jakiej maszynie</label>
+          <select class="form-control" id="machine" name="machine" required>
+            <% realizeData.forEach(function(realizeData) { 
+              if(realizeData.machine != null ) {%> 
+              <option value="<%=realizeData.Mid %>"><%= realizeData.machine %>  </option>
+              <% }}); %>
+          </select>
+      
+      </div>
       <button type="submit" class="btn btn-warning">Dodaj zgłoszenie</button>
     </form>
   </div>
