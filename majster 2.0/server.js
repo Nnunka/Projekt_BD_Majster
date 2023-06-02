@@ -16,6 +16,7 @@ const app = express();
 const PORT = process.env.PORT || 5000; //port na którym działa aplikacja - jeśli nie znajdzie w pliku .env portu to domyślnie działa na porcie 5000
 
 const initializePassport = require("./passportConfig"); //implementacja f. passport - do logowania 
+const { machine } = require("os");
 initializePassport(passport);
 
 app.use(express.static(path.join(__dirname, 'public'))); //ustawienie tego jako static pozwala np. na używanie css itp.
@@ -514,47 +515,88 @@ app.get('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
   const serviceId = req.params.id;
 
-  const { title, machine, details} = req.body;
+  const { title, machine, details } = req.body;
 
   const end_date = new Date(1970, 0, 1, 0, 0, 0);
   const obecnaData = new Date();
 
   pool.query(
     `INSERT INTO services (service_title, service_machine_id, service_details, service_start_date, service_end_date)
-     VALUES ($1,$2,$3,$4,$5) RETURNING service_id`,[title, serviceId, details, obecnaData, end_date],
-     (err, results) => {
+     VALUES ($1, $2, $3, $4, $5) RETURNING service_id`,
+    [title, serviceId, details, obecnaData, end_date],
+    (err, results) => {
       if (err) {
         throw err;
       }
+
       pool.query(
         'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
         [serviceId, 'Serwis'],
-         (err, results) => {
+        (err, results) => {
           if (err) {
             throw err;
           }
-      console.log(results.rows);
-      console.log("nowa zlecenie serwisowe w bazie")
 
-      req.flash("success_msg", "Dodano nowego zlecenie serwisowe");
-      res.redirect("/machines/MachinesList");
+          pool.query(
+            `UPDATE tasks t
+            SET task_start_date = $2
+            FROM realize_tasks rt
+            WHERE t.task_id = rt.realize_task_id
+              AND rt.realize_machine_id = $1::bigint;`,
+            [serviceId, end_date],
+            (err, result) => {
+              if (err) {
+                console.error(err);
+                res.sendStatus(500);
+                return;
+              }
+
+              pool.query(
+                `DELETE FROM realize_tasks WHERE realize_machine_id = $1`,
+                [serviceId],
+                (err, results) => {
+                  if (err) {
+                    throw err;
+                  }
+
+                  console.log(results.rows);
+                  console.log("Nowe zlecenie serwisowe w bazie");
+
+                  req.flash("success_msg", "Dodano nowe zlecenie serwisowe");
+                  res.redirect("/machines/MachinesList");
+                });
+            });
+        });
     });
-  });
-});
+})
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
 app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
   const alertId = req.params.id;
-  pool.query(`SELECT machine_id, machine_name FROM machines WHERE machine_exist = true;`, function(error, results) {
-    if (error) throw error;
-    const machines = results.rows;
-    res.render("alerts/AddAlert", { alertId: alertId, machines: machines, userRole: req.user.user_role });
-  });
+
+  pool.query(
+    `SELECT machine_id, machine_name
+    FROM machines WHERE machine_exist=true AND machine_status!='W serwisie';`,
+    function(error, results) {
+      if (error) throw error;
+
+      const realize = results.rows.map(row => ({
+        Mid: row.machine_id,
+        machine: row.machine_name,
+      }));
+
+      res.render("alerts/AddAlert", {
+        realizeData: realize,
+        alertId: alertId,
+        userRole: req.user.user_role
+      });
+    });
 });
 
+// dodanie nowej zlecenia serwisowego do bazy poprzez formularz
 app.post('/alerts/AddAlert', async (req, res) => {
   const userRole = req.user.user_role;
-  const user = req.user.user_id;
+  const userId = req.user.user_id;
   const { title, details, machine } = req.body;
 
   const obecnaData = new Date();
@@ -564,22 +606,32 @@ app.post('/alerts/AddAlert', async (req, res) => {
     `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date, alert_machine_id)
     VALUES ($1, $2, $3, $4, $5)
     RETURNING alert_id`,
-    [title, user, details, obecnaData, machine],
+    [title, userId, details, obecnaData, machine],
     (err, results) => {
       if (err) {
         throw err;
       }
+      pool.query(
+        `UPDATE machines SET machine_status = 'Awaria'
+        WHERE machine_id = $1::bigint;`,
+        [machine],
+        (err, results) => {
+          if (err) {
+            throw err;
+          }
 
-      console.log(results.rows);
-      console.log("nowe zgłoszenie w bazie");
-      req.flash("success_msg", "Dodano nowe zgłoszenie");
+          console.log(results.rows);
+          console.log("Nowe zgłoszenie w bazie");
+          req.flash("success_msg", "Dodano nowe zgłoszenie");
 
-      if (userRole === 'admin' || userRole === 'repairer') { res.redirect("/alerts/AlertsList"); }
-      if (userRole === 'user'){ res.redirect("/users/Dashboard"); }
-    }
-  );
+          if (userRole === 'admin' || userRole === 'repairer') {
+            res.redirect("/alerts/AlertsList");
+          } else if (userRole === 'user') {
+            res.redirect("/users/Dashboard");
+          }
+        });
+    });
 });
-
 
 
 //////////////////////////////////DODANIE ZADANIA DO REALIZACJI/////////////////////////////////////////////////
