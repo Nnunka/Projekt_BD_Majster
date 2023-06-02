@@ -564,11 +564,11 @@ app.post('/machines/ServiceMachine/:id', checkAuthenticated, (req, res) => {
 
                   req.flash("success_msg", "Dodano nowe zlecenie serwisowe");
                   res.redirect("/machines/MachinesList");
+                    });
                 });
             });
         });
     });
-})
 
 //////////////////////////////////DODANIE NOWEGO ZGŁOSZENIA/////////////////////////////////////////////////
 app.get("/alerts/AddAlert", checkNotAuthenticated, (req, res) => {
@@ -603,8 +603,8 @@ app.post('/alerts/AddAlert', async (req, res) => {
 
   // dodanie zgłoszenia do bazy
   pool.query(
-    `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date, alert_machine_id)
-    VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO alerts (alert_title, alert_who_add_id, alert_details, alert_add_date, alert_machine_id, alert_status)
+    VALUES ($1, $2, $3, $4, $5, 'Nie zaczęte')
     RETURNING alert_id`,
     [title, userId, details, obecnaData, machine],
     (err, results) => {
