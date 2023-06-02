@@ -1091,6 +1091,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
 ////////////////////////////////////////USUWANIE MASZYN///////////////////////////////////////////
 app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
   const machineId = req.params.id;
+  const start_date = new Date(1970, 0, 1, 0, 0, 0);
 
   pool.query(
     'UPDATE machines SET machine_exist=false WHERE machine_id = $1',
@@ -1100,11 +1101,29 @@ app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
         console.error(err);
         res.sendStatus(500);
         return;
-      }
-
-      res.redirect('/machines/MachinesList');
-    }
-  );
+      }pool.query(
+        `UPDATE tasks t
+        SET task_start_date = $2
+        FROM realize_tasks rt
+        WHERE t.task_id = rt.realize_task_id
+              AND rt.realize_machine_id = $1::bigint;`,
+        [machineId,start_date],
+        (err, result) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+          }
+          pool.query(
+            `DELETE FROM realize_tasks WHERE realize_machine_id = $1`,[machineId],
+             (err, results) => {
+              if (err) {
+                throw err;
+              }
+              res.redirect('/machines/MachinesList');
+            });
+        });
+    });
 });
 
 ////////////////////////////////////////USUWANIE SERWISOWANIA///////////////////////////////////////////
