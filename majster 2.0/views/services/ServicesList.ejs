@@ -69,17 +69,17 @@
           </td>
 
           <% if (userRole === 'repairer') { %>
-
-            <% if (service.service_status === 'W trakcie') { %>
-              <td></td>
-              <td></td>
+            <td>
+              <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
+            </td>
+            <% if (service.service_status === 'Wykonane') { %>
+              <td>Zakończono</td>
+            <% } else if (service.service_status === 'Nie zaczęte'){ %>
+              <td>
+                <button class="btn btn-success"><a href="/services/StartService/<%= service.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
+              </td>
             <% } else { %>
-              <td>
-                <button class="btn btn-warning"><a href="/services/EditService/<%= service.id %>" class="text-decoration-none text-dark">Edytuj</a></button>
-              </td>
-              <td>
-                <button class="btn btn-danger"><a href="/services/StartService/<%= service.id %>" class="text-decoration-none text-dark">Przydziel</a></button>
-              </td>
+              <td>W trakcie</td>
             <% } %>
 
           <% } %>

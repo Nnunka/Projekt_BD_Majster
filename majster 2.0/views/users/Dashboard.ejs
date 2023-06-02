@@ -78,10 +78,9 @@
       </table>
 
 
-      <% } 
-      else if (userRole === 'user') { %>
-        
+      <% } else if (userRole === 'user') { %>
         <p>Rola: pracownik</p>
+        <h4>Twoje zadania do wykonania</h4>
         <table class="table">
           <thead>
             <tr>
@@ -111,9 +110,11 @@
             <% }); %>
           </tbody>
         </table>
-      <% } 
-      else if (userRole === 'repairer') { %>
+
+
+      <% } else if (userRole === 'repairer') { %>
         <p>Rola: serwisant</p>
+        <h4>Twoje serwisy do wykonania</h4>
         <table class="table">
           <thead>
             <tr>
@@ -127,35 +128,45 @@
           <tbody>
             <% service.forEach(function(service) { %>
               <tr>
+                <%- console.log(service) %>
                 <td><%= service.title %></td>
                 <td><%= service.machine %></td>
                 <td><%= service.details %></td>
                 <td><%= service.type %></td>
-                  <td><button class="btn btn-danger"><a href="/service/EndService/<%= service.id %>/<%= service.MID%>" class="text-decoration-none text-dark">Zakończ serwis</a></button>
-                  </td>
+                <td>
+                  <button class="btn btn-danger"><a href="/service/EndService/<%= service.id %>/<%= service.MID%>" class="text-decoration-none text-dark">Zakończ serwis</a></button>
+                </td>
               </tr>
             <% }); %>
           </tbody>
         </table>
+
+        <h4>Twoje awarie do wykonania</h4>
         <table class="table">
           <thead>
             <tr>
-              <th scope="col">Nazwa</th>
+              <th scope="col">Tytuł awarii</th>
               <th scope="col">Opis</th>
-              <th scope="col">Data dodania</th>
+              <th scope="col">Nazwa maszyny</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
-            <% service.forEach(function(service) { %>
+            <% alert.forEach(function(alert) { %>
               <tr>
-                <td><%= service.alertTitle %></td>
-                <td><%= service.alertDetails %></td>
-                
+                <td><%= alert.alertTitle %></td>
+                <td><%= alert.alertDetails %></td>
+                <td><%= alert.alertMachineName%></td>
+                <td>
+                  <button class="btn btn-danger"><a href="/alerts/EndAlert/<%= alert.id %>/<%= alert.MID %>" class="text-decoration-none text-dark">Zakończ</a></button>
+                </td>
               </tr>
             <% }); %>
           </tbody>
         </table>
+        
       <%}%>
+
   </div>
 
 </body>
