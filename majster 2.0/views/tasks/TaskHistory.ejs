@@ -48,7 +48,13 @@
               <%= moment(task.end_date).format('lll') %>
             <% } %>
           </td>
-          <td><%= task.czas_pracy %></td>
+          <td>
+          <% if (moment(task.end_date).format('DD MM YYYY HH:mm') === moment('1970-01-01 00:00').format('DD MM YYYY HH:mm')) { %>
+            <p>00:00</p>
+            <% } else { %>
+              <%= task.czas_pracy %>
+            <% } %>
+          </td>
         </tr>
       <% }); %>
     </tbody>
