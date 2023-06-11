@@ -1,4 +1,6 @@
-# Projekt_BD_Majster
+# INSTUKCJA PRZYGOTOWANIA ŚRODOWISKA APLIKACJI MAJSTER
+
+!!! DOKŁADNIEJSZA INSTRUKCJA, WRAZ ZE SCREENAMI POSTĘPOWANIA KROK PO KROKU ZNAJDUJE SIĘ W REOPOZYTORIUM W PLIKU O NAZWIE README.pdf !!!
 1. Sklonuj repozytorium.
 2. Otwórz pgAdmin4.
 3. Stwórz nowego użytkownika o nazwie „Majster” z hasłem „Majster”, oraz nadaj mu
