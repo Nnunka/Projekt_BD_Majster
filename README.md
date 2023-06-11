@@ -14,3 +14,8 @@ database.
 `npm run dev`
 7. Otwórz przeglądarkę internetową, w pasku wyszukiwania wpisz:
 `localhost:5000`
+
+Dane do zalogowania z rożnym poziomem uprawnień użytkownika:<br />
+Admin – login: admin, hasło: haslo<br />
+Pracownik – login: user, hasło: haslo<br />
+Serwisant – login: serwis, hasło: haslo<br />
