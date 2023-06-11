@@ -460,7 +460,7 @@ app.post('/tasks/AddTask', async (req, res) => {
 
   // dodanie zadania do bazy
   pool.query(
-    `INSERT INTO tasks (task_title, task_details, task_add_date)
+    `INSERT INTO tasks (task_title, task_details, task_add_date, task_start_date, task_end_date, task_start_date_by_user)
     VALUES ($1, $2, $3, $4, $5, $6)
     RETURNING task_id`,
     [title, details, obecnaData, start_date, end_date, start_date_by_user],
@@ -1196,7 +1196,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
                   console.error(err);
                   res.sendStatus(500);
                   return;
-                }
+                }rs
                 res.redirect('/users/UsersList');
               }
             );
