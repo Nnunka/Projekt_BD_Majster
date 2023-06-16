@@ -91,7 +91,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
       FROM alerts a
       LEFT JOIN machines mc ON a.alert_machine_id = mc.machine_id 
       LEFT JOIN users u ON a.alert_repairer_id = u.user_id 
-      WHERE a.alert_status='W trakcie' AND a.alert_repairer_id = $1;`, [req.user.user_id], function(error, results, fields) {
+      WHERE a.alert_status='W trakcie' AND a.alert_exist=true AND a.alert_repairer_id = $1;`, [req.user.user_id], function(error, results, fields) {
       if (error) throw error;
       const alert = results.rows.map(row => ({
         id: row.alert_id,
@@ -1165,8 +1165,57 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
     });
 });
 
-////////////////////////////////////////USUWANIE UŻYTKOWNIKA///////////////////////////////////////////
-app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
+////////////////////////////////////////USUWANIE UŻYTKOWNIKA - TRANSAKCJA///////////////////////////////////////////
+app.get('/users/DeleteUser/:id', checkAuthenticated, async (req, res) => {
+  const userId = req.params.id;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    const userRoleResult = await client.query(
+      `SELECT * FROM users WHERE user_id = $1 AND user_role = 'repairer'`,
+      [userId]
+    );
+
+    if (userRoleResult.rows.length > 0) {
+      await client.query('UPDATE users SET user_exist = false WHERE user_id = $1', [userId]);
+      await client.query('UPDATE services SET service_status = $1 WHERE service_user_id = $2', [
+        'Nie zaczęte, service_user_id=0',
+        userId
+      ]);
+    } else {
+      await client.query('UPDATE users SET user_exist = false WHERE user_id = $1', [userId]);
+      await client.query(
+        `UPDATE machines m SET machine_status = 'Sprawna'
+        FROM realize_tasks rt
+        WHERE m.machine_id = rt.realize_machine_id
+        AND rt.realize_user_id = $1::bigint;`,
+        [userId]
+      );
+      await client.query(
+        `UPDATE tasks t SET task_exist=false
+        FROM realize_tasks rt
+        WHERE t.task_id = rt.realize_task_id
+        AND rt.realize_user_id = $1::bigint;`, //to poprawiłam i zmienia tylko flagę w taskach bo idk po co zmieniać datę przydzielenia zadania na 0 
+        [userId]
+      );
+      await client.query('DELETE FROM realize_tasks WHERE realize_user_id = $1', [userId]);
+    }
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/UsersList');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
+});
+
+/*app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
   const userId = req.params.id;
   const start_date = new Date(1970, 0, 1, 0, 0, 0);
   pool.query(
@@ -1236,7 +1285,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
                     if (err) {
                       console.error(err);
                       res.sendStatus(500);
-                      return;
+                      return; //to poprawiłam i zmienia tylko flagę w taskach bo idk po co zmieniać datę przydzielenia zadania na 0 
                     }
                     pool.query(
                       `DELETE FROM realize_tasks WHERE realize_user_id = $1`,
@@ -1252,6 +1301,7 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
           });
       }});
 });
+*/
 
 ////////////////////////////////////////USUWANIE MASZYN///////////////////////////////////////////
 app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
