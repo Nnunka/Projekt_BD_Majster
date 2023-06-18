@@ -1440,8 +1440,34 @@ app.get('/realizes/StartRealize/:Tid', checkAuthenticated, (req, res) => {
   });
 });
 
-////////////////////////////////////////ZAKONCZENIE REALIZACJI///////////////////////////////////////////
-app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
+////////////////////////////////////////ZAKONCZENIE REALIZACJI - TRANSAKCJA///////////////////////////////////////////
+app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, async (req, res) => {
+  const taskId = req.params.Tid;
+  const machineId = req.params.Mid;
+  const obecnaData = new Date();
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE tasks SET task_end_date = $2 WHERE task_id = $1;', [taskId, obecnaData]);
+    await client.query('UPDATE machines SET machine_status = $2 WHERE machine_id = $1;', [machineId, 'Sprawna']);
+    await client.query('DELETE FROM realize_tasks WHERE realize_task_id = $1;', [taskId]);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/Dashboard');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
+});
+
+/* app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
   const taskId = req.params.Tid;
   const machineId = req.params.Mid;
 
@@ -1480,7 +1506,8 @@ app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
             });
         });
     });
-  });
+  }); 
+  */
 
 ////////////////////////////////////////ROZPOCZĘCIE SERWISOWANIA///////////////////////////////////////////
 app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
