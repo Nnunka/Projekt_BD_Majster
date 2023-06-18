@@ -1527,36 +1527,33 @@ app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
   });
 });
 
-////////////////////////////////////////ZAKONCZENIE SERWISU///////////////////////////////////////////
-app.get('/service/EndService/:id/:Mid', checkAuthenticated, (req, res) => {
+////////////////////////////////////////ZAKONCZENIE SERWISU - TRANSAKCJA///////////////////////////////////////////
+app.get('/service/EndService/:id/:Mid', checkAuthenticated, async (req, res) => {
   const serviceId = req.params.id;
   const machineId = req.params.Mid;
 
   const obecnaData = new Date();
 
-  pool.query(
-    `UPDATE services SET service_end_date = $2, service_status=$3 WHERE service_id = $1;`,
-    [serviceId, obecnaData,'Wykonane'],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }
-  
-      pool.query(
-        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
-        [machineId, 'Sprawna'],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-            }
-          res.redirect('/users/Dashboard');
-        });
-    });
-  });
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE services SET service_end_date = $2, service_status=$3 WHERE service_id = $1;', [serviceId, obecnaData, 'Wykonane']);
+    await client.query('UPDATE machines SET machine_status = $2 WHERE machine_id = $1;', [machineId, 'Sprawna']);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/Dashboard');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
+});
+
 
 ////////////////////////////////////////ROZPOCZĘCIE AWARII///////////////////////////////////////////
 app.get('/alerts/StartAlert/:Aid', checkAuthenticated, (req, res) => {
