@@ -484,7 +484,7 @@ app.get("/machines/AddMachine", checkNotAuthenticated, (req, res) => {
 
 // dodanie nowej maszyny do bazy poprzez formularz
 app.post('/machines/AddMachine', async (req, res) => {
-  const { name, type, status } = req.body;
+  const { name, type } = req.body;
   console.log({ name, type });
   const errors = [];
 
@@ -1035,7 +1035,7 @@ app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
 app.post('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
   const alertId = req.params.id;
 
-  const { title, user, details, add_date } = req.body;
+  const { title, user, details } = req.body;
  
   pool.query(
     'UPDATE alerts SET alert_title = $1, alert_who_add_id = $2, alert_details = $3 WHERE alert_id = $4',
