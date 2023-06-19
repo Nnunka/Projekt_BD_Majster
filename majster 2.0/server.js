@@ -1469,7 +1469,8 @@ app.get('/alerts/ArchiveAlert/:id', checkAuthenticated, (req, res) => {
         console.error(err);
         res.sendStatus(500);
         return;
-      }    
+      }   
+      res.redirect('/alerts/AlertHistory'); 
     });
 });
 
