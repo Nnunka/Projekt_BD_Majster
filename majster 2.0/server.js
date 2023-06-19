@@ -91,7 +91,7 @@ app.get("/users/Dashboard", checkNotAuthenticated, (req, res) =>{
       FROM alerts a
       LEFT JOIN machines mc ON a.alert_machine_id = mc.machine_id 
       LEFT JOIN users u ON a.alert_repairer_id = u.user_id 
-      WHERE a.alert_status='W trakcie' AND a.alert_repairer_id = $1;`, [req.user.user_id], function(error, results, fields) {
+      WHERE a.alert_status='W trakcie' AND a.alert_exist=true AND a.alert_repairer_id = $1;`, [req.user.user_id], function(error, results, fields) {
       if (error) throw error;
       const alert = results.rows.map(row => ({
         id: row.alert_id,
@@ -484,7 +484,7 @@ app.get("/machines/AddMachine", checkNotAuthenticated, (req, res) => {
 
 // dodanie nowej maszyny do bazy poprzez formularz
 app.post('/machines/AddMachine', async (req, res) => {
-  const { name, type, status } = req.body;
+  const { name, type } = req.body;
   console.log({ name, type });
   const errors = [];
 
@@ -734,9 +734,6 @@ app.post('/realizes/AddRealize/:id', checkAuthenticated, (req, res) => {
 });
 
 
-
-
-
 ////////////////////////////////////////EDYCJA ZADAŃ///////////////////////////////////////////
 app.get('/tasks/EditTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
@@ -868,8 +865,6 @@ app.post('/users/EditUser/:id', checkAuthenticated, (req, res) => {
       }});
 }});
 
-
-
 ////////////////////////////////////////EDYCJA MASZYNY///////////////////////////////////////////
 app.get('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
   const machineId = req.params.id;
@@ -938,8 +933,6 @@ app.post('/machines/EditMachine/:id', checkAuthenticated, (req, res) => {
     );
   }
 });
-
-
 
 ////////////////////////////////////////EDYCJA SERWISOWANIA///////////////////////////////////////////
 app.get('/services/EditService/:id', checkAuthenticated, (req, res) => {
@@ -1042,7 +1035,7 @@ app.get('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
 app.post('/alerts/EditAlert/:id', checkAuthenticated, (req, res) => {
   const alertId = req.params.id;
 
-  const { title, user, details, add_date } = req.body;
+  const { title, user, details } = req.body;
  
   pool.query(
     'UPDATE alerts SET alert_title = $1, alert_who_add_id = $2, alert_details = $3 WHERE alert_id = $4',
@@ -1126,7 +1119,6 @@ app.post('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
   );
 });
 
-
 ////////////////////////////////////////USUWANIE ZADAŃ///////////////////////////////////////////
 app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
   const taskId = req.params.id;
@@ -1165,92 +1157,54 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
     });
 });
 
-////////////////////////////////////////USUWANIE UŻYTKOWNIKA///////////////////////////////////////////
-app.get('/users/DeleteUser/:id', checkAuthenticated, (req, res) => {
+////////////////////////////////////////USUWANIE UŻYTKOWNIKA - TRANSAKCJA///////////////////////////////////////////
+app.get('/users/DeleteUser/:id', checkAuthenticated, async (req, res) => {
   const userId = req.params.id;
-  const start_date = new Date(1970, 0, 1, 0, 0, 0);
-  pool.query(
-    `SELECT * FROM users WHERE user_id = $1 AND user_role = 'repairer'`, //spr czy dany user to nie jest serwisant 
-    [userId],
-    (err, result) => {
-      if (err) {
-        throw err;
-      }
-      if (result.rows.length > 0) {
-        pool.query(
-          'UPDATE users SET user_exist=false WHERE user_id = $1',
-          [userId],
-          (err, result) => {
-            if (err) {
-              console.error(err);
-              res.sendStatus(500);
-              return;
-            }
-            pool.query(
-              `UPDATE services s
-              SET service_status = 'Nie zaczęte, service_user_id=0 '
-              WHERE s.service_user_id = $1::bigint;`,
-              [userId],
-              (err, result) => {
-                if (err) {
-                  console.error(err);
-                  res.sendStatus(500);
-                  return;
-                }rs
-                res.redirect('/users/UsersList');
-              }
-            );
-          }
-        );
-      } else {
-        pool.query(
-          'UPDATE users SET user_exist=false WHERE user_id = $1',
-          [userId],
-          (err, result) => {
-            if (err) {
-              console.error(err);
-              res.sendStatus(500);
-              return;
-            }
-            pool.query(
-              `UPDATE machines m
-              SET machine_status = 'Sprawna'
-              FROM realize_tasks rt
-              WHERE m.machine_id = rt.realize_machine_id
-              AND rt.realize_user_id = $1::bigint;`,
-              [userId],
-              (err, result) => {
-                if (err) {
-                  console.error(err);
-                  res.sendStatus(500);
-                  return;
-                }
-                pool.query(
-                  `UPDATE tasks t
-                  SET task_start_date = $2
-                  FROM realize_tasks rt
-                  WHERE t.task_id = rt.realize_task_id
-                  AND rt.realize_user_id = $1::bigint;`,
-                  [userId, start_date],
-                  (err, result) => {
-                    if (err) {
-                      console.error(err);
-                      res.sendStatus(500);
-                      return;
-                    }
-                    pool.query(
-                      `DELETE FROM realize_tasks WHERE realize_user_id = $1`,
-                      [userId],
-                      (err, results) => {
-                        if (err) {
-                          throw err;
-                        }
-                        res.redirect('/users/UsersList');
-                      });
-                    });
-              });
-          });
-      }});
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    const userRoleResult = await client.query(
+      `SELECT * FROM users WHERE user_id = $1 AND user_role = 'repairer'`,
+      [userId]
+    );
+
+    if (userRoleResult.rows.length > 0) {
+      await client.query('UPDATE users SET user_exist = false WHERE user_id = $1', [userId]);
+      await client.query('UPDATE services SET service_status = $1 WHERE service_user_id = $2', [
+        'Nie zaczęte, service_user_id=0',
+        userId
+      ]);
+    } else {
+      await client.query('UPDATE users SET user_exist = false WHERE user_id = $1', [userId]);
+      await client.query(
+        `UPDATE machines m SET machine_status = 'Sprawna'
+        FROM realize_tasks rt
+        WHERE m.machine_id = rt.realize_machine_id
+        AND rt.realize_user_id = $1::bigint;`,
+        [userId]
+      );
+      await client.query(
+        `UPDATE tasks t SET task_exist=false
+        FROM realize_tasks rt
+        WHERE t.task_id = rt.realize_task_id
+        AND rt.realize_user_id = $1::bigint;`, //to poprawiłam i zmienia tylko flagę w taskach bo idk po co zmieniać datę przydzielenia zadania na 0 
+        [userId]
+      );
+      await client.query('DELETE FROM realize_tasks WHERE realize_user_id = $1', [userId]);
+    }
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/UsersList');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
 });
 
 ////////////////////////////////////////USUWANIE MASZYN///////////////////////////////////////////
@@ -1315,8 +1269,6 @@ app.get('/services/DeleteService/:id/:Mid', checkAuthenticated, (req, res) => {
         res.sendStatus(500);
         return;
       }
-
-
 
       res.redirect('/services/ServicesList');
     });
@@ -1390,47 +1342,32 @@ app.get('/realizes/StartRealize/:Tid', checkAuthenticated, (req, res) => {
   });
 });
 
-////////////////////////////////////////ZAKONCZENIE REALIZACJI///////////////////////////////////////////
-app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, (req, res) => {
+////////////////////////////////////////ZAKONCZENIE REALIZACJI - TRANSAKCJA///////////////////////////////////////////
+app.get('/realizes/EndRealize/:Tid/:Mid', checkAuthenticated, async (req, res) => {
   const taskId = req.params.Tid;
   const machineId = req.params.Mid;
-
   const obecnaData = new Date();
 
-  pool.query(
-    'UPDATE tasks SET task_end_date = $2 WHERE task_id = $1;',
-    [taskId, obecnaData],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }
-  
-      pool.query(
-        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
-        [machineId, 'Sprawna'],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-          }
-  
-          pool.query(
-            'DELETE FROM realize_tasks WHERE realize_task_id = $1;',
-            [taskId],
-            (err, result) => {
-              if (err) {
-                console.error(err);
-                res.sendStatus(500);
-                return;
-              }
-              res.redirect('/users/Dashboard');
-            });
-        });
-    });
-  });
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE tasks SET task_end_date = $2 WHERE task_id = $1;', [taskId, obecnaData]);
+    await client.query('UPDATE machines SET machine_status = $2 WHERE machine_id = $1;', [machineId, 'Sprawna']);
+    await client.query('DELETE FROM realize_tasks WHERE realize_task_id = $1;', [taskId]);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/Dashboard');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
+});
 
 ////////////////////////////////////////ROZPOCZĘCIE SERWISOWANIA///////////////////////////////////////////
 app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
@@ -1450,36 +1387,32 @@ app.get('/services/StartService/:Sid', checkAuthenticated, (req, res) => {
   });
 });
 
-////////////////////////////////////////ZAKONCZENIE SERWISU///////////////////////////////////////////
-app.get('/service/EndService/:id/:Mid', checkAuthenticated, (req, res) => {
+////////////////////////////////////////ZAKONCZENIE SERWISU - TRANSAKCJA///////////////////////////////////////////
+app.get('/service/EndService/:id/:Mid', checkAuthenticated, async (req, res) => {
   const serviceId = req.params.id;
   const machineId = req.params.Mid;
 
   const obecnaData = new Date();
 
-  pool.query(
-    `UPDATE services SET service_end_date = $2, service_status=$3 WHERE service_id = $1;`,
-    [serviceId, obecnaData,'Wykonane'],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }
-  
-      pool.query(
-        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
-        [machineId, 'Sprawna'],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-            }
-          res.redirect('/users/Dashboard');
-        });
-    });
-  });
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE services SET service_end_date = $2, service_status=$3 WHERE service_id = $1;', [serviceId, obecnaData, 'Wykonane']);
+    await client.query('UPDATE machines SET machine_status = $2 WHERE machine_id = $1;', [machineId, 'Sprawna']);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/Dashboard');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
+});
 
 ////////////////////////////////////////ROZPOCZĘCIE AWARII///////////////////////////////////////////
 app.get('/alerts/StartAlert/:Aid', checkAuthenticated, (req, res) => {
@@ -1499,36 +1432,31 @@ app.get('/alerts/StartAlert/:Aid', checkAuthenticated, (req, res) => {
   });
 });
 
-////////////////////////////////////////ZAKONCZENIE AWARII///////////////////////////////////////////
-app.get('/alerts/EndAlert/:Aid/:Mid', checkAuthenticated, (req, res) => {
+////////////////////////////////////////ZAKONCZENIE AWARII - TRANSAKCJA///////////////////////////////////////////
+app.get('/alerts/EndAlert/:Aid/:Mid', checkAuthenticated, async (req, res) => {
   const alertId = req.params.Aid;
   const machineId = req.params.Mid;
-  
-  const obecnaData = new Date();
 
-  pool.query(
-    'UPDATE alerts SET alert_status= $1 WHERE alert_id=$2',
-    ['Wykonane',alertId],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }
-  
-      pool.query(
-        'UPDATE machines SET machine_status = $2 WHERE machine_id = $1;',
-        [machineId, 'Sprawna'],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-            }
-          res.redirect('/users/Dashboard');
-        });
-    });
-  });
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE alerts SET alert_status = $1 WHERE alert_id = $2', ['Wykonane', alertId]);
+    await client.query('UPDATE machines SET machine_status = $1 WHERE machine_id = $2', ['Sprawna', machineId]);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/users/Dashboard');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
+});
+
 
 
 
