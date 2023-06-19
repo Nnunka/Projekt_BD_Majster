@@ -360,10 +360,6 @@ app.get("/services/ServiceHistory", checkNotAuthenticated, (req, res) => {
   });
 });
 
-
-
-
-
 app.get("/alerts/AlertHistory", checkNotAuthenticated, (req, res) => {
   pool.query(`SELECT a.alert_id, a.alert_title, a.alert_exist, CONCAT(u.user_name, ' ', u.user_surname ) AS who_add , alert_details, alert_add_date
    FROM alerts a INNER JOIN users u ON a.alert_who_add_id=u.user_id WHERE alert_exist=false ORDER BY alert_id`, function(error, results, fields) {
@@ -1474,7 +1470,39 @@ app.get('/alerts/ArchiveAlert/:id', checkAuthenticated, (req, res) => {
     });
 });
 
+////////////////////////////////////////USUWANIE ZADAŃ Z HISTORII - TRIGGER///////////////////////////////////////////
+app.get('/tasks/ArchiveTask/:id', checkAuthenticated, (req, res) => {
+  const taskId = req.params.id;
 
+  pool.query(
+    'DELETE FROM tasks WHERE task_id = $1',
+    [taskId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }   
+      res.redirect('/tasks/TaskHistory'); 
+    });
+});
+
+////////////////////////////////////////USUWANIE SERWISÓW Z HISTORII - TRIGGER///////////////////////////////////////////
+app.get('/services/ArchiveService/:id', checkAuthenticated, (req, res) => {
+  const serviceId = req.params.id;
+
+  pool.query(
+    'DELETE FROM services WHERE service_id = $1',
+    [serviceId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }   
+      res.redirect('/services/ServiceHistory'); 
+    });
+});
 
 
 // obsługa żądania post, wylogowanie
