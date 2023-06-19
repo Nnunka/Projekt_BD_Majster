@@ -1457,6 +1457,22 @@ app.get('/alerts/EndAlert/:Aid/:Mid', checkAuthenticated, async (req, res) => {
   }
 });
 
+////////////////////////////////////////USUWANIE ZGŁOSZEŃ Z HISTORII - TRIGGER///////////////////////////////////////////
+app.get('/alerts/ArchiveAlert/:id', checkAuthenticated, (req, res) => {
+  const alertId = req.params.id;
+
+  pool.query(
+    'DELETE FROM alerts WHERE alert_id = $1',
+    [alertId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      }    
+    });
+});
+
 
 
 
