@@ -13,6 +13,7 @@
         <th scope="col">Kto zgłosił</th>
         <th scope="col">Opis</th>
         <th scope="col">Data dodania</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -22,6 +23,10 @@
           <td><%= alert.who_add_id %></td>
           <td><%= alert.details %></td>
           <td><%= moment(alert.add_date).format('lll')%></td>
+          
+          <td>
+            <button class="btn btn-danger"><a href="" class="text-decoration-none text-dark">Usuń</a></button>
+          </td>
         </tr>
       <% }); %>
     </tbody>

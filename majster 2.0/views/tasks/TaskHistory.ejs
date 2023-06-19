@@ -16,6 +16,7 @@
         <th scopr="col">Data rozpoczęcia</th>
         <th scope="col">Data zakończenia</th>
         <th scope="col">Czas pracy</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -54,6 +55,10 @@
             <% } else { %>
               <%= task.czas_pracy %>
             <% } %>
+          </td>
+          
+          <td>
+            <button class="btn btn-danger"><a href="" class="text-decoration-none text-dark">Usuń</a></button>
           </td>
         </tr>
       <% }); %>
