@@ -1215,6 +1215,8 @@ app.get('/machines/DeleteMachine/:id', checkAuthenticated, async (req, res) => {
 
     await client.query('UPDATE services SET service_exist = false WHERE service_machine_id = $1', [machineId]);
 
+    await client.query('UPDATE alerts SET alert_exist = false WHERE alert_machine_id = $1', [machineId]);
+
     await client.query('COMMIT'); // Zatwierdzenie transakcji
 
     res.redirect('/machines/MachinesList');
