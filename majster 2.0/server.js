@@ -1115,43 +1115,36 @@ app.post('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
   );
 });
 
-////////////////////////////////////////USUWANIE ZADAŃ///////////////////////////////////////////
-app.get('/tasks/DeleteTask/:id', checkAuthenticated, (req, res) => {
+////////////////////////////////////////USUWANIE ZADAŃ - TRNASAKCJA///////////////////////////////////////////
+app.get('/tasks/DeleteTask/:id', checkAuthenticated, async (req, res) => {
   const taskId = req.params.id;
 
-  pool.query(
-    'UPDATE tasks SET task_exist=false WHERE task_id=$1',
-    [taskId],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }
-      pool.query(
-        `UPDATE machines m
-        SET machine_status = 'Sprawna'
-        FROM realize_tasks rt
-        WHERE m.machine_id = rt.realize_machine_id
-              AND rt.realize_task_id = $1::bigint;`,
-        [taskId],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-          }
-          pool.query(
-            `DELETE FROM realize_tasks WHERE realize_task_id = $1`,[taskId],
-             (err, results) => {
-              if (err) {
-                throw err;
-              }
-              res.redirect('/tasks/TaskList');
-            });
-        });
-    });
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE tasks SET task_exist = false WHERE task_id = $1', [taskId]);
+
+    await client.query(`UPDATE machines SET machine_status = 'Sprawna'
+      FROM realize_tasks WHERE machines.machine_id = realize_tasks.realize_machine_id
+      AND realize_tasks.realize_task_id = $1::bigint`, [taskId]);
+
+
+    await client.query('DELETE FROM realize_tasks WHERE realize_task_id = $1', [taskId]);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/tasks/TaskList');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
 });
+
 
 ////////////////////////////////////////USUWANIE UŻYTKOWNIKA - TRANSAKCJA///////////////////////////////////////////
 app.get('/users/DeleteUser/:id', checkAuthenticated, async (req, res) => {
@@ -1203,43 +1196,39 @@ app.get('/users/DeleteUser/:id', checkAuthenticated, async (req, res) => {
   }
 });
 
-////////////////////////////////////////USUWANIE MASZYN///////////////////////////////////////////
-app.get('/machines/DeleteMachine/:id', checkAuthenticated, (req, res) => {
+////////////////////////////////////////USUWANIE MASZYN - TRANSAKCJA///////////////////////////////////////////
+app.get('/machines/DeleteMachine/:id', checkAuthenticated, async (req, res) => {
   const machineId = req.params.id;
   const start_date = new Date(1970, 0, 1, 0, 0, 0);
 
-  pool.query(
-    'UPDATE machines SET machine_exist=false WHERE machine_id = $1',
-    [machineId],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        res.sendStatus(500);
-        return;
-      }pool.query(
-        `UPDATE tasks t
-        SET task_start_date = $2
-        FROM realize_tasks rt
-        WHERE t.task_id = rt.realize_task_id
-              AND rt.realize_machine_id = $1::bigint;`,
-        [machineId,start_date],
-        (err, result) => {
-          if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-          }
-          pool.query(
-            `DELETE FROM realize_tasks WHERE realize_machine_id = $1`,[machineId],
-             (err, results) => {
-              if (err) {
-                throw err;
-              }
-              res.redirect('/machines/MachinesList');
-            });
-        });
-    });
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Rozpoczęcie transakcji
+
+    await client.query('UPDATE machines SET machine_exist = false WHERE machine_id = $1', [machineId]);
+
+    await client.query(`UPDATE tasks t SET task_start_date = $2
+      FROM realize_tasks rt WHERE t.task_id = rt.realize_task_id
+      AND rt.realize_machine_id = $1::bigint`, [machineId, start_date]);
+
+    await client.query('DELETE FROM realize_tasks WHERE realize_machine_id = $1', [machineId]);
+
+    await client.query('UPDATE services SET service_exist = false WHERE service_machine_id = $1', [machineId]);
+
+    await client.query('COMMIT'); // Zatwierdzenie transakcji
+
+    res.redirect('/machines/MachinesList');
+  } catch (error) {
+    await client.query('ROLLBACK'); // Wycofanie transakcji w przypadku błędu
+    console.error(error);
+    res.sendStatus(500);
+  } finally {
+    client.release(); // Zwolnienie klienta po zakończeniu transakcji
+  }
 });
+
+
 
 ////////////////////////////////////////USUWANIE SERWISOWANIA///////////////////////////////////////////
 app.get('/services/DeleteService/:id/:Mid', checkAuthenticated, (req, res) => {
