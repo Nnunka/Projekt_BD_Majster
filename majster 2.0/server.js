@@ -1115,7 +1115,7 @@ app.post('/realizes/EditRealize/:id', checkAuthenticated, (req, res) => {
   );
 });
 
-////////////////////////////////////////USUWANIE ZADAŃ - TRNASAKCJA///////////////////////////////////////////
+////////////////////////////////////////USUWANIE ZADAŃ - TRANSAKCJA///////////////////////////////////////////
 app.get('/tasks/DeleteTask/:id', checkAuthenticated, async (req, res) => {
   const taskId = req.params.id;
 
@@ -1129,7 +1129,6 @@ app.get('/tasks/DeleteTask/:id', checkAuthenticated, async (req, res) => {
     await client.query(`UPDATE machines SET machine_status = 'Sprawna'
       FROM realize_tasks WHERE machines.machine_id = realize_tasks.realize_machine_id
       AND realize_tasks.realize_task_id = $1::bigint`, [taskId]);
-
 
     await client.query('DELETE FROM realize_tasks WHERE realize_task_id = $1', [taskId]);
 
